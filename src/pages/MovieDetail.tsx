@@ -53,7 +53,8 @@ const MovieDetail = () => {
 
   const incrementViews = async () => {
     try {
-      await supabase.rpc('increment_movie_views', { movie_id: id });
+      const { error } = await supabase.rpc('increment_movie_views', { movie_id: id });
+      if (error) console.error('Error incrementing views:', error);
     } catch (error) {
       console.error('Error incrementing views:', error);
     }

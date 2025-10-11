@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 // Mock data for featured videos
 const featuredVideos = [
   {
-    id: 1,
+    id: "1",
     title: "The Art of Visual Storytelling",
     thumbnail: "https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=800",
     duration: "12:34",
@@ -14,7 +14,7 @@ const featuredVideos = [
     category: "Documentary"
   },
   {
-    id: 2,
+    id: "2",
     title: "Cinematography Masterclass",
     thumbnail: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800",
     duration: "18:45",
@@ -22,7 +22,7 @@ const featuredVideos = [
     category: "Education"
   },
   {
-    id: 3,
+    id: "3",
     title: "Behind the Lens: A Journey",
     thumbnail: "https://images.unsplash.com/photo-1524712245354-2c4e5e7121c0?w=800",
     duration: "9:23",
@@ -30,7 +30,7 @@ const featuredVideos = [
     category: "Short Film"
   },
   {
-    id: 4,
+    id: "4",
     title: "Urban Cinematography",
     thumbnail: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800",
     duration: "15:12",
@@ -38,7 +38,7 @@ const featuredVideos = [
     category: "Experimental"
   },
   {
-    id: 5,
+    id: "5",
     title: "Color Grading Techniques",
     thumbnail: "https://images.unsplash.com/photo-1509824227185-9c5a01ceba0d?w=800",
     duration: "22:18",
@@ -46,7 +46,7 @@ const featuredVideos = [
     category: "Tutorial"
   },
   {
-    id: 6,
+    id: "6",
     title: "Motion Picture Magic",
     thumbnail: "https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=800",
     duration: "11:55",
