@@ -53,6 +53,7 @@ const Movies = () => {
             {movies.map((movie) => (
               <VideoCard
                 key={movie.id}
+                id={movie.id}
                 title={movie.title}
                 thumbnail={movie.thumbnail_url || `https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=800`}
                 duration={movie.duration || "N/A"}

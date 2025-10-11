@@ -1,7 +1,9 @@
 import { Play, Clock, Eye } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
 
 interface VideoCardProps {
+  id: string;
   title: string;
   thumbnail: string;
   duration: string;
@@ -9,9 +11,14 @@ interface VideoCardProps {
   category: string;
 }
 
-const VideoCard = ({ title, thumbnail, duration, views, category }: VideoCardProps) => {
+const VideoCard = ({ id, title, thumbnail, duration, views, category }: VideoCardProps) => {
+  const navigate = useNavigate();
+
   return (
-    <Card className="group overflow-hidden hover-lift cursor-pointer bg-card border-border">
+    <Card 
+      className="group overflow-hidden hover-lift cursor-pointer bg-card border-border"
+      onClick={() => navigate(`/movie/${id}`)}
+    >
       <div className="relative aspect-video overflow-hidden">
         <img
           src={thumbnail}
