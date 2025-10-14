@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
-import VideoCard from "@/components/VideoCard";
 import Footer from "@/components/Footer";
-import { Loader2, Film } from "lucide-react";
+import VideoCard from "@/components/VideoCard";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
+import { Loader2, Film } from "lucide-react";
 
 const categories = [
   { id: "all", label: "All" },
@@ -16,14 +17,9 @@ const categories = [
   { id: "true-crime", label: "True Crime" },
   { id: "biography", label: "Biography" },
   { id: "travel", label: "Travel & Adventure" },
-  { id: "action", label: "Action" },
-  { id: "comedy", label: "Comedy" },
-  { id: "drama", label: "Drama" },
-  { id: "horror", label: "Horror" },
-  { id: "thriller", label: "Thriller" },
 ];
 
-const Movies = () => {
+const Browse = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [movies, setMovies] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -59,19 +55,26 @@ const Movies = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       
-      <main className="container mx-auto px-4 pt-24 pb-16">
-        <motion.div 
-          className="mb-8"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <h1 className="text-4xl md:text-5xl font-bold mb-2">All Films</h1>
-          <p className="text-lg text-muted-foreground">Browse our complete collection from creators worldwide - all free to watch</p>
-        </motion.div>
+      {/* Header */}
+      <motion.div 
+        className="pt-24 pb-8 bg-gradient-to-b from-background to-card/20"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        <div className="container mx-auto px-4">
+          <h1 className="text-4xl md:text-6xl font-bold mb-4">
+            Browse Films
+          </h1>
+          <p className="text-xl text-muted-foreground max-w-2xl">
+            Discover films from creators worldwide - all free to watch
+          </p>
+        </div>
+      </motion.div>
 
-        {/* Category Filters */}
-        <Tabs defaultValue="all" className="w-full mb-8">
+      {/* Filters */}
+      <div className="container mx-auto px-4 py-8">
+        <Tabs defaultValue="all" className="w-full">
           <TabsList className="w-full justify-start overflow-x-auto flex-wrap h-auto bg-card/50 p-2">
             {categories.map((category) => (
               <TabsTrigger
@@ -87,13 +90,9 @@ const Movies = () => {
 
           <TabsContent value={selectedCategory} className="mt-8">
             {loading ? (
-              <motion.div 
-                className="flex justify-center items-center min-h-[400px]"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-              >
+              <div className="flex justify-center py-20">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </motion.div>
+              </div>
             ) : movies.length === 0 ? (
               <motion.div 
                 className="text-center py-20"
@@ -103,21 +102,18 @@ const Movies = () => {
               >
                 <Film className="h-20 w-20 mx-auto mb-4 text-muted-foreground/50" />
                 <h3 className="text-2xl font-semibold mb-2">No Films Found</h3>
-                <p className="text-muted-foreground text-lg">
-                  {selectedCategory === 'all' 
-                    ? 'Be the first to submit a film!' 
-                    : 'No films in this category yet.'}
-                </p>
+                <p className="text-muted-foreground">No films in this category yet.</p>
               </motion.div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {movies.map((movie, index) => (
-                  <VideoCard
+                  <VideoCard 
                     key={movie.id}
                     id={movie.id}
                     title={movie.title}
                     thumbnail={movie.thumbnail_url || `https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=800`}
                     duration={movie.duration || new Date(movie.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    views={movie.youtube_views?.toString() || movie.views?.toString() || "0"}
                     category={movie.category}
                     index={index}
                   />
@@ -126,11 +122,26 @@ const Movies = () => {
             )}
           </TabsContent>
         </Tabs>
-      </main>
+      </div>
+
+      {/* Load More - Hidden if no content */}
+      {!loading && movies.length > 0 && (
+        <motion.div 
+          className="container mx-auto px-4 py-8 text-center"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+        >
+          <Button variant="outline" size="lg" className="glass">
+            Load More Films
+          </Button>
+        </motion.div>
+      )}
 
       <Footer />
     </div>
   );
 };
 
-export default Movies;
+export default Browse;
+

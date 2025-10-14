@@ -14,102 +14,141 @@ export type Database = {
   }
   public: {
     Tables: {
-      movies: {
+      custom_categories: {
         Row: {
-          category: string
-          created_at: string | null
-          description: string | null
-          duration: string | null
-          genre: string | null
           id: string
-          status: string | null
-          tags: string[] | null
-          thumbnail_url: string | null
-          title: string
-          updated_at: string | null
-          uploaded_by: string | null
-          views: number | null
-          youtube_url: string
+          name: string
+          created_by: string | null
+          usage_count: number | null
+          created_at: string | null
         }
         Insert: {
-          category: string
-          created_at?: string | null
-          description?: string | null
-          duration?: string | null
-          genre?: string | null
           id?: string
-          status?: string | null
-          tags?: string[] | null
-          thumbnail_url?: string | null
-          title: string
-          updated_at?: string | null
-          uploaded_by?: string | null
-          views?: number | null
-          youtube_url: string
+          name: string
+          created_by?: string | null
+          usage_count?: number | null
+          created_at?: string | null
         }
         Update: {
-          category?: string
-          created_at?: string | null
-          description?: string | null
-          duration?: string | null
-          genre?: string | null
           id?: string
-          status?: string | null
-          tags?: string[] | null
+          name?: string
+          created_by?: string | null
+          usage_count?: number | null
+          created_at?: string | null
+        }
+        Relationships: []
+      }
+      custom_genres: {
+        Row: {
+          id: string
+          name: string
+          created_by: string | null
+          usage_count: number | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          name: string
+          created_by?: string | null
+          usage_count?: number | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          name?: string
+          created_by?: string | null
+          usage_count?: number | null
+          created_at?: string | null
+        }
+        Relationships: []
+      }
+      movies: {
+        Row: {
+          id: string
+          title: string
+          description: string | null
+          youtube_url: string
+          youtube_video_id: string | null
+          thumbnail_url: string | null
+          category: string
+          genre: string | null
+          duration: string | null
+          views: number | null
+          youtube_views: number | null
+          is_featured: boolean | null
+          status: string
+          uploaded_by: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          title: string
+          description?: string | null
+          youtube_url: string
+          youtube_video_id?: string | null
           thumbnail_url?: string | null
-          title?: string
-          updated_at?: string | null
-          uploaded_by?: string | null
+          category: string
+          genre?: string | null
+          duration?: string | null
           views?: number | null
+          youtube_views?: number | null
+          is_featured?: boolean | null
+          status?: string
+          uploaded_by?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          title?: string
+          description?: string | null
           youtube_url?: string
+          youtube_video_id?: string | null
+          thumbnail_url?: string | null
+          category?: string
+          genre?: string | null
+          duration?: string | null
+          views?: number | null
+          youtube_views?: number | null
+          is_featured?: boolean | null
+          status?: string
+          uploaded_by?: string | null
+          created_at?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
       profiles: {
         Row: {
+          id: string
+          username: string | null
+          full_name: string | null
           avatar_url: string | null
+          role: string
           bio: string | null
           created_at: string | null
-          id: string
           updated_at: string | null
-          username: string | null
         }
         Insert: {
+          id: string
+          username?: string | null
+          full_name?: string | null
           avatar_url?: string | null
+          role?: string
           bio?: string | null
           created_at?: string | null
-          id: string
           updated_at?: string | null
-          username?: string | null
         }
         Update: {
+          id?: string
+          username?: string | null
+          full_name?: string | null
           avatar_url?: string | null
+          role?: string
           bio?: string | null
           created_at?: string | null
-          id?: string
           updated_at?: string | null
-          username?: string | null
-        }
-        Relationships: []
-      }
-      user_roles: {
-        Row: {
-          created_at: string | null
-          id: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          role?: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          role?: Database["public"]["Enums"]["app_role"]
-          user_id?: string
         }
         Relationships: []
       }
@@ -118,20 +157,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      has_role: {
+      is_admin: {
         Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
+          user_id: string
         }
         Returns: boolean
       }
       increment_movie_views: {
-        Args: { movie_id: string }
+        Args: { 
+          movie_id: string 
+        }
         Returns: undefined
       }
     }
     Enums: {
-      app_role: "admin" | "user"
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never
@@ -258,8 +298,6 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {
-      app_role: ["admin", "user"],
-    },
+    Enums: {},
   },
 } as const

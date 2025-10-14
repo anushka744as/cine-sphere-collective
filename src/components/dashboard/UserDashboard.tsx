@@ -1,26 +1,28 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Plus, Trash2, Eye } from "lucide-react";
+import { Plus, Trash2, Eye, Edit } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import MovieSubmitForm from "./MovieSubmitForm";
 
 const UserDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [myMovies, setMyMovies] = useState<any[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [editMovie, setEditMovie] = useState<any>(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchMyMovies();
-  }, []);
+    if (user) {
+      fetchMyMovies();
+    }
+  }, [user]);
 
   const fetchMyMovies = async () => {
     if (!user) return;
@@ -38,38 +40,12 @@ const UserDashboard = () => {
     }
   };
 
-  const handleSubmitMovie = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!user) return;
+  const handleDelete = async (id: string, title: string) => {
+    if (!confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`)) {
+      return;
+    }
 
     setLoading(true);
-    const formData = new FormData(e.currentTarget);
-    
-    const { error } = await supabase.from('movies').insert({
-      title: formData.get('title') as string,
-      description: formData.get('description') as string,
-      youtube_url: formData.get('youtube_url') as string,
-      thumbnail_url: formData.get('thumbnail_url') as string,
-      category: formData.get('category') as string,
-      genre: formData.get('genre') as string,
-      duration: formData.get('duration') as string,
-      uploaded_by: user.id,
-      status: 'pending'
-    });
-
-    if (error) {
-      toast.error("Failed to submit movie");
-    } else {
-      toast.success("Movie submitted successfully! Awaiting admin approval.");
-      setIsOpen(false);
-      fetchMyMovies();
-      (e.target as HTMLFormElement).reset();
-    }
-    
-    setLoading(false);
-  };
-
-  const handleDelete = async (id: string) => {
     const { error } = await supabase
       .from('movies')
       .delete()
@@ -77,94 +53,56 @@ const UserDashboard = () => {
       .eq('uploaded_by', user?.id);
 
     if (error) {
-      toast.error("Failed to delete movie");
+      toast.error("Failed to delete film");
+      console.error(error);
     } else {
-      toast.success("Movie deleted successfully!");
+      toast.success("Film deleted successfully!");
       fetchMyMovies();
     }
+    setLoading(false);
+  };
+
+  const handleEdit = (movie: any) => {
+    setEditMovie(movie);
+    setIsEditOpen(true);
+  };
+
+  const handleEditSuccess = () => {
+    setIsEditOpen(false);
+    setEditMovie(null);
+    fetchMyMovies();
   };
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-bold mb-2">My Movies</h1>
-          <p className="text-muted-foreground">Upload and manage your movie submissions</p>
+          <h1 className="text-3xl sm:text-4xl font-bold mb-2">My Films</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">Upload and manage your film submissions</p>
         </div>
         
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
             <Button size="lg" className="shadow-lg">
               <Plus className="mr-2 h-4 w-4" />
-              Submit Movie
+              Submit Film
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Submit Your Movie</DialogTitle>
-              <DialogDescription>Share your YouTube movie link with the community</DialogDescription>
+              <DialogTitle>Submit Your Film</DialogTitle>
+              <DialogDescription>Share your YouTube film with the community</DialogDescription>
             </DialogHeader>
             
-            <form onSubmit={handleSubmitMovie} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="title">Title *</Label>
-                  <Input id="title" name="title" required disabled={loading} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="category">Category *</Label>
-                  <Input id="category" name="category" placeholder="Action, Drama, Comedy..." required disabled={loading} />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea id="description" name="description" rows={3} disabled={loading} placeholder="Tell us about your movie..." />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="youtube_url">YouTube URL *</Label>
-                <Input 
-                  id="youtube_url" 
-                  name="youtube_url" 
-                  type="url" 
-                  required 
-                  disabled={loading}
-                  placeholder="https://www.youtube.com/watch?v=..."
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="thumbnail_url">Thumbnail URL</Label>
-                <Input 
-                  id="thumbnail_url" 
-                  name="thumbnail_url" 
-                  type="url" 
-                  disabled={loading}
-                  placeholder="https://example.com/thumbnail.jpg"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="genre">Genre</Label>
-                  <Input id="genre" name="genre" disabled={loading} placeholder="Thriller, Romance..." />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="duration">Duration</Label>
-                  <Input id="duration" name="duration" placeholder="e.g., 2:15:30" disabled={loading} />
-                </div>
-              </div>
-
-              <div className="flex justify-end space-x-2">
-                <Button type="button" variant="outline" onClick={() => setIsOpen(false)} disabled={loading}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={loading}>
-                  {loading ? "Submitting..." : "Submit Movie"}
-                </Button>
-              </div>
-            </form>
+            <MovieSubmitForm
+              userId={user?.id}
+              isAdmin={false}
+              onSuccess={() => {
+                setIsOpen(false);
+                fetchMyMovies();
+              }}
+              onCancel={() => setIsOpen(false)}
+            />
           </DialogContent>
         </Dialog>
       </div>
@@ -204,16 +142,16 @@ const UserDashboard = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Your Movies</CardTitle>
+          <CardTitle>Your Films</CardTitle>
           <CardDescription>Manage your submissions</CardDescription>
         </CardHeader>
         <CardContent>
           {myMovies.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
-              <p>You haven't submitted any movies yet.</p>
+              <p>You haven't submitted any films yet.</p>
               <Button className="mt-4" onClick={() => setIsOpen(true)}>
                 <Plus className="mr-2 h-4 w-4" />
-                Submit Your First Movie
+                Submit Your First Film
               </Button>
             </div>
           ) : (
@@ -221,29 +159,87 @@ const UserDashboard = () => {
               {myMovies.map((movie) => (
                 <div
                   key={movie.id}
-                  className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-accent/5 transition-colors"
+                  className="flex flex-col sm:flex-row gap-4 p-4 rounded-lg border border-border hover:bg-accent/5 transition-colors"
                 >
-                  <div className="flex-1">
-                    <h3 className="font-semibold">{movie.title}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {movie.category} • Status: <span className={movie.status === 'approved' ? 'text-green-600' : 'text-yellow-600'}>{movie.status}</span> • {movie.views} views
-                    </p>
+                  {/* Thumbnail */}
+                  <div className="flex-shrink-0">
+                    <div className="relative w-full sm:w-40 h-32 sm:h-24 rounded-md overflow-hidden bg-muted">
+                      {movie.thumbnail_url ? (
+                        <img 
+                          src={movie.thumbnail_url} 
+                          alt={movie.title}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.src = 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=400';
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Eye className="h-8 w-8 text-muted-foreground/50" />
+                        </div>
+                      )}
+                      {/* Status Badge */}
+                      <div className="absolute top-2 right-2">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          movie.status === 'approved' 
+                            ? 'bg-green-600/90 text-white' 
+                            : movie.status === 'pending'
+                            ? 'bg-yellow-600/90 text-white'
+                            : 'bg-red-600/90 text-white'
+                        }`}>
+                          {movie.status}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                   
-                  <div className="flex items-center space-x-2">
+                  {/* Content */}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-lg mb-1 truncate">{movie.title}</h3>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      {movie.category} {movie.genre && `• ${movie.genre}`}
+                    </p>
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <Eye className="h-3 w-3" />
+                        {movie.views || 0} views
+                      </span>
+                      {movie.duration && (
+                        <span>{movie.duration}</span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Actions */}
+                  <div className="flex sm:flex-col items-center sm:items-end justify-end gap-2">
                     <Button 
-                      variant="ghost" 
-                      size="icon"
+                      variant="outline" 
+                      size="sm"
                       onClick={() => navigate(`/movie/${movie.id}`)}
+                      className="flex-1 sm:flex-none"
                     >
-                      <Eye className="h-4 w-4" />
+                      <Eye className="h-4 w-4 sm:mr-2" />
+                      <span className="hidden sm:inline">View</span>
                     </Button>
                     <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDelete(movie.id)}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEdit(movie)}
+                      className="flex-1 sm:flex-none"
+                      disabled={loading}
                     >
-                      <Trash2 className="h-4 w-4 text-destructive" />
+                      <Edit className="h-4 w-4 sm:mr-2" />
+                      <span className="hidden sm:inline">Edit</span>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDelete(movie.id, movie.title)}
+                      className="flex-1 sm:flex-none text-destructive hover:text-destructive"
+                      disabled={loading}
+                    >
+                      <Trash2 className="h-4 w-4 sm:mr-2" />
+                      <span className="hidden sm:inline">Delete</span>
                     </Button>
                   </div>
                 </div>
@@ -252,6 +248,26 @@ const UserDashboard = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Edit Movie Dialog */}
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Your Film</DialogTitle>
+            <DialogDescription>Update your film details</DialogDescription>
+          </DialogHeader>
+          
+          {editMovie && (
+            <MovieSubmitForm
+              userId={user?.id}
+              isAdmin={false}
+              initialData={editMovie}
+              onSuccess={handleEditSuccess}
+              onCancel={() => setIsEditOpen(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

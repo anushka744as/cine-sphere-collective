@@ -153,4 +153,70 @@ All colors MUST be HSL.
   .hover-scale:hover {
     transform: scale(1.05);
   }
+
+  /* 3D Perspective utilities */
+  .perspective-3d {
+    perspective: 1000px;
+    transform-style: preserve-3d;
+  }
+
+  /* Film grain effect */
+  @keyframes filmGrain {
+    0%, 100% { opacity: 0.15; }
+    50% { opacity: 0.25; }
+  }
+
+  .film-grain::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+      repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px),
+      repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px);
+    opacity: 0.15;
+    animation: filmGrain 0.5s infinite;
+    pointer-events: none;
+  }
+
+  /* Cinema stripes */
+  @keyframes movieStripes {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  .cinema-stripes {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cinema-stripes::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200%;
+    height: 100%;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 10px,
+      rgba(var(--primary), 0.05) 10px,
+      rgba(var(--primary), 0.05) 20px
+    );
+    animation: movieStripes 20s linear infinite;
+    pointer-events: none;
+  }
+
+  /* Spotlight effect */
+  .spotlight {
+    position: relative;
+    background: radial-gradient(
+      ellipse at center,
+      rgba(0, 72, 51, 0.1) 0%,
+      transparent 70%
+    );
+  }
 }

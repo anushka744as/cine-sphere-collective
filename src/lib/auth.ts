@@ -35,10 +35,10 @@ export const getCurrentUser = async () => {
 
 export const getUserRole = async (userId: string) => {
   const { data, error } = await supabase
-    .from('user_roles')
+    .from('profiles')
     .select('role')
-    .eq('user_id', userId)
+    .eq('id', userId)
     .single();
   
-  return { role: data?.role, error };
+  return { role: data?.role || 'user', error };
 };

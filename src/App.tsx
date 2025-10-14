@@ -8,6 +8,8 @@ import Auth from "./pages/Auth";
 import Movies from "./pages/Movies";
 import MovieDetail from "./pages/MovieDetail";
 import Dashboard from "./pages/Dashboard";
+import Featured from "./pages/Featured";
+import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -19,10 +21,13 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/movies" element={<Movies />} />
+                  <Route path="/" element={<Index />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/featured" element={<Featured />} />
+                  <Route path="/curated" element={<Featured />} /> {/* Redirect old URL */}
+                  <Route path="/movies" element={<Movies />} />
           <Route path="/movie/:id" element={<MovieDetail />} />
+          <Route path="/about" element={<About />} />
           <Route path="/dashboard" element={<Dashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
