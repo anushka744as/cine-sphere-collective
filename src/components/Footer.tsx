@@ -1,4 +1,3 @@
-import { Film, Github, Twitter, Instagram } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Footer = () => {
@@ -10,36 +9,47 @@ const Footer = () => {
   };
 
   return (
-    <footer className="border-t border-border bg-card/50 backdrop-blur-sm mt-16">
-      <div className="container mx-auto px-4 py-8 sm:py-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+    <footer className="border-t border-border bg-background mt-24">
+      <div className="container mx-auto px-6 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           {/* Brand */}
-          <div className="space-y-3 sm:space-y-4 sm:col-span-2 lg:col-span-1">
-            <div className="flex items-center space-x-2 cursor-pointer" onClick={() => handleNavigation('/')}>
-              <Film className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-              <span className="text-lg sm:text-xl font-bold gradient-text">CineSphere</span>
+          <div className="md:col-span-1">
+            <div 
+              className="text-xl font-bold tracking-tight cursor-pointer mb-4" 
+              onClick={() => handleNavigation('/')}
+            >
+              CINESPHERE
             </div>
-            <p className="text-xs sm:text-sm text-muted-foreground">
-              Free platform for filmmakers to showcase their YouTube films and movies to the world.
+            <p className="text-sm text-foreground/50 leading-relaxed">
+              Free platform for filmmakers to showcase their YouTube films.
             </p>
           </div>
 
           {/* Explore */}
           <div>
-            <h3 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">Explore</h3>
-            <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
+            <h3 className="text-xs uppercase tracking-wider text-foreground/50 mb-6">Explore</h3>
+            <ul className="space-y-4 text-sm">
               <li>
-                <button onClick={() => handleNavigation('/')} className="hover:text-primary transition-colors text-left">
+                <button 
+                  onClick={() => handleNavigation('/')} 
+                  className="text-foreground/70 hover:text-foreground transition-colors"
+                >
                   Home
                 </button>
               </li>
               <li>
-                <button onClick={() => handleNavigation('/featured')} className="hover:text-primary transition-colors text-left">
-                  Featured Films
+                <button 
+                  onClick={() => handleNavigation('/featured')} 
+                  className="text-foreground/70 hover:text-foreground transition-colors"
+                >
+                  Featured
                 </button>
               </li>
               <li>
-                <button onClick={() => handleNavigation('/movies')} className="hover:text-primary transition-colors text-left">
+                <button 
+                  onClick={() => handleNavigation('/movies')} 
+                  className="text-foreground/70 hover:text-foreground transition-colors"
+                >
                   All Films
                 </button>
               </li>
@@ -48,50 +58,55 @@ const Footer = () => {
 
           {/* Community */}
           <div>
-            <h3 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">Community</h3>
-            <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
+            <h3 className="text-xs uppercase tracking-wider text-foreground/50 mb-6">Community</h3>
+            <ul className="space-y-4 text-sm">
               <li>
-                <button onClick={() => handleNavigation('/dashboard')} className="hover:text-primary transition-colors text-left">
+                <button 
+                  onClick={() => handleNavigation('/dashboard')} 
+                  className="text-foreground/70 hover:text-foreground transition-colors"
+                >
                   Submit Film
                 </button>
               </li>
               <li>
-                <button onClick={() => handleNavigation('/about')} className="hover:text-primary transition-colors text-left">
-                  About Us
+                <button 
+                  onClick={() => handleNavigation('/about')} 
+                  className="text-foreground/70 hover:text-foreground transition-colors"
+                >
+                  About
                 </button>
               </li>
               <li>
-                <button onClick={() => handleNavigation('/auth')} className="hover:text-primary transition-colors text-left">
-                  Sign In / Sign Up
+                <button 
+                  onClick={() => handleNavigation('/auth')} 
+                  className="text-foreground/70 hover:text-foreground transition-colors"
+                >
+                  Sign In
                 </button>
               </li>
             </ul>
           </div>
 
-          {/* Connect */}
+          {/* Legal */}
           <div>
-            <h3 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">Connect</h3>
-            <div className="flex space-x-3 sm:space-x-4">
-              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors" aria-label="Twitter">
-                <Twitter className="h-4 w-4 sm:h-5 sm:w-5" />
-              </a>
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors" aria-label="Instagram">
-                <Instagram className="h-4 w-4 sm:h-5 sm:w-5" />
-              </a>
-              <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors" aria-label="GitHub">
-                <Github className="h-4 w-4 sm:h-5 sm:w-5" />
-              </a>
-            </div>
-            <div className="mt-3 sm:mt-4 text-xs sm:text-sm text-muted-foreground">
-              <p>© 2025 CineSphere</p>
-              <p className="mt-1">All rights reserved</p>
-            </div>
+            <h3 className="text-xs uppercase tracking-wider text-foreground/50 mb-6">Legal</h3>
+            <ul className="space-y-4 text-sm">
+              <li>
+                <span className="text-foreground/70">Privacy Policy</span>
+              </li>
+              <li>
+                <span className="text-foreground/70">Terms of Service</span>
+              </li>
+            </ul>
           </div>
         </div>
 
-        <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-border text-center text-xs sm:text-sm text-muted-foreground">
-          <p>
-            Made with ❤️ for filmmakers and cinema lovers worldwide
+        <div className="mt-16 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-sm text-foreground/40">
+            © 2025 CineSphere. All rights reserved.
+          </p>
+          <p className="text-sm text-foreground/40">
+            Made for filmmakers worldwide
           </p>
         </div>
       </div>

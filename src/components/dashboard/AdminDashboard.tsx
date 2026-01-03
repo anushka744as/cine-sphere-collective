@@ -46,13 +46,13 @@ const AdminDashboard = () => {
       if (uploaderIds.length > 0) {
         const { data: profiles } = await supabase
           .from('profiles')
-          .select('id, username, full_name')
+          .select('id, username')
           .in('id', uploaderIds);
         
         if (profiles) {
           const uploaderMap: Record<string, string> = {};
           profiles.forEach(p => {
-            uploaderMap[p.id] = p.username || p.full_name || 'Unknown';
+            uploaderMap[p.id] = p.username || 'Unknown';
           });
           setUploaders(uploaderMap);
         }
@@ -63,7 +63,7 @@ const AdminDashboard = () => {
   const fetchUsers = async () => {
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, username, full_name, role, created_at')
+      .select('id, username, created_at')
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -112,7 +112,7 @@ const AdminDashboard = () => {
       console.error(error);
     } else {
       toast.success("Film deleted successfully!");
-      await fetchMovies(); // Ensure movies are refreshed
+      await fetchMovies();
       if (selectedUser) {
         await fetchUserMovies(selectedUser.id);
       }
@@ -126,9 +126,9 @@ const AdminDashboard = () => {
   };
 
   const handleEditSuccess = async () => {
-      setIsEditOpen(false);
-      setEditMovie(null);
-    await fetchMovies(); // Ensure movies are refreshed
+    setIsEditOpen(false);
+    setEditMovie(null);
+    await fetchMovies();
     if (selectedUser) {
       await fetchUserMovies(selectedUser.id);
     }
@@ -145,26 +145,7 @@ const AdminDashboard = () => {
       toast.error("Failed to update status");
     } else {
       toast.success(`Film ${status === 'approved' ? 'approved' : 'rejected'}!`);
-      await fetchMovies(); // Ensure movies are refreshed
-      if (selectedUser) {
-        await fetchUserMovies(selectedUser.id);
-      }
-    }
-    setLoading(false);
-  };
-
-  const toggleFeatured = async (id: string, currentFeatured: boolean) => {
-    setLoading(true);
-    const { error } = await supabase
-      .from('movies')
-      .update({ is_featured: !currentFeatured })
-      .eq('id', id);
-
-    if (error) {
-      toast.error("Failed to update featured status");
-    } else {
-      toast.success(!currentFeatured ? "Film marked as featured!" : "Film removed from featured");
-      await fetchMovies(); // Ensure movies are refreshed
+      await fetchMovies();
       if (selectedUser) {
         await fetchUserMovies(selectedUser.id);
       }
@@ -175,7 +156,7 @@ const AdminDashboard = () => {
   const renderFilmCard = (movie: any) => (
     <div
       key={movie.id}
-      className="flex flex-col sm:flex-row gap-4 p-4 bg-orange-500/30 m-2 rounded-lg border border-border hover:bg-orange-500/20 transition-colors"
+      className="flex flex-col sm:flex-row gap-4 p-4 bg-card border border-border rounded-lg hover:bg-accent/5 transition-colors"
     >
       {/* Thumbnail */}
       <div className="flex-shrink-0">
@@ -191,39 +172,34 @@ const AdminDashboard = () => {
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <Eye className="h-8 w-8 text-muted-foreground/50" />
-              </div>
+              <Eye className="h-8 w-8 text-foreground/20" />
+            </div>
           )}
-          {/* Badges */}
-          <div className="absolute top-2 right-2 flex gap-1">
+          {/* Status Badge */}
+          <div className="absolute top-2 right-2">
             <Badge className={
               movie.status === 'approved' 
-                ? 'bg-green-600/90' 
+                ? 'bg-foreground text-background' 
                 : movie.status === 'pending'
-                ? 'bg-yellow-600/90'
-                : 'bg-red-600/90'
+                ? 'bg-foreground/50'
+                : 'bg-foreground/30'
             }>
               {movie.status}
             </Badge>
-            {movie.is_featured && (
-              <Badge className="bg-purple-600/90">
-                <Star className="h-3 w-3" />
-              </Badge>
-            )}
-                </div>
-                </div>
-              </div>
+          </div>
+        </div>
+      </div>
 
       {/* Content */}
       <div className="flex-1 min-w-0">
         <h3 className="font-semibold text-lg mb-1 truncate">{movie.title}</h3>
-        <p className="text-sm text-muted-foreground mb-2">
+        <p className="text-sm text-foreground/50 mb-2">
           {movie.category} {movie.genre && `• ${movie.genre}`}
         </p>
-        <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-3 text-xs text-foreground/40">
           <span className="flex items-center gap-1">
             <Eye className="h-3 w-3" />
-            {movie.youtube_views || movie.views || 0} views
+            {movie.views || 0} views
           </span>
           {movie.uploaded_by && (
             <span>By: {uploaders[movie.uploaded_by] || 'Unknown'}</span>
@@ -231,67 +207,58 @@ const AdminDashboard = () => {
           {movie.duration && (
             <span>{movie.duration}</span>
           )}
-              </div>
+        </div>
       </div>
 
       {/* Actions */}
       <div className="flex sm:flex-col items-center justify-end gap-2 flex-shrink-0">
+        {movie.status === 'pending' && (
+          <>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => handleStatusChange(movie.id, 'approved')}
+              title="Approve"
+              disabled={loading}
+            >
+              <Check className="h-4 w-4" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => handleStatusChange(movie.id, 'rejected')}
+              title="Reject"
+              disabled={loading}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </>
+        )}
         <Button 
-          variant={movie.is_featured ? "default" : "ghost"}
+          variant="ghost" 
           size="icon"
-          onClick={() => toggleFeatured(movie.id, movie.is_featured)}
-          title={movie.is_featured ? "Remove from featured" : "Mark as featured"}
+          onClick={() => navigate(`/movie/${movie.id}`)}
+          title="View"
+        >
+          <Eye className="h-4 w-4" />
+        </Button>
+        <Button 
+          variant="ghost" 
+          size="icon"
+          onClick={() => handleEdit(movie)}
+          title="Edit"
+        >
+          <Edit className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => handleDelete(movie.id, movie.title)}
+          title="Delete"
           disabled={loading}
         >
-          <Star className={`h-4 w-4 ${movie.is_featured ? 'fill-current' : ''}`} />
+          <Trash2 className="h-4 w-4" />
         </Button>
-                  {movie.status === 'pending' && (
-                    <>
-                      <Button 
-                        variant="ghost" 
-                        size="icon"
-                        onClick={() => handleStatusChange(movie.id, 'approved')}
-                        title="Approve"
-              disabled={loading}
-                      >
-                        <Check className="h-4 w-4 text-green-600" />
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="icon"
-                        onClick={() => handleStatusChange(movie.id, 'rejected')}
-                        title="Reject"
-              disabled={loading}
-                      >
-                        <X className="h-4 w-4 text-red-600" />
-                      </Button>
-                    </>
-                  )}
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    onClick={() => navigate(`/movie/${movie.id}`)}
-                    title="View"
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    onClick={() => handleEdit(movie)}
-                    title="Edit"
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-          onClick={() => handleDelete(movie.id, movie.title)}
-                    title="Delete"
-          disabled={loading}
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
       </div>
     </div>
   );
@@ -301,17 +268,17 @@ const AdminDashboard = () => {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl sm:text-4xl font-bold mb-2">Admin Dashboard</h1>
-          <p className="text-muted-foreground text-sm sm:text-base">Manage films, users, and content</p>
+          <p className="text-foreground/50 text-sm sm:text-base">Manage films, users, and content</p>
         </div>
         
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="bg-foreground text-background hover:bg-foreground/90">
               <Plus className="mr-2 h-4 w-4" />
               Add Film
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-background border-border">
             <DialogHeader>
               <DialogTitle>Add New Film</DialogTitle>
               <DialogDescription>Fill in the film details below (approved automatically)</DialogDescription>
@@ -322,7 +289,7 @@ const AdminDashboard = () => {
               isAdmin={true}
               onSuccess={async () => {
                 setIsOpen(false);
-                await fetchMovies(); // Ensure movies are refreshed
+                await fetchMovies();
                 if (selectedUser) {
                   await fetchUserMovies(selectedUser.id);
                 }
@@ -334,7 +301,7 @@ const AdminDashboard = () => {
       </div>
 
       <Tabs defaultValue="all-films" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-2 bg-card">
           <TabsTrigger value="all-films">
             <Film className="h-4 w-4 mr-2" />
             All Films ({movies.length})
@@ -346,11 +313,11 @@ const AdminDashboard = () => {
         </TabsList>
 
         <TabsContent value="all-films" className="space-y-4">
-          <Card>
+          <Card className="bg-card border-border">
             <CardHeader>
               <CardTitle>All Films</CardTitle>
-              <CardDescription>
-                Total: {movies.length} films | Featured: {movies.filter(m => m.is_featured).length}
+              <CardDescription className="text-foreground/50">
+                Total: {movies.length} films
               </CardDescription>
             </CardHeader>
             <CardContent className="overflow-x-auto">
@@ -364,46 +331,45 @@ const AdminDashboard = () => {
         <TabsContent value="users" className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Users List */}
-            <Card>
+            <Card className="bg-card border-border">
               <CardHeader>
                 <CardTitle>All Users</CardTitle>
-                <CardDescription>Click on a user to see their films</CardDescription>
+                <CardDescription className="text-foreground/50">Click on a user to see their films</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {users.map((user) => (
+                  {users.map((u) => (
                     <div
-                      key={user.id}
-                      onClick={() => handleUserClick(user)}
+                      key={u.id}
+                      onClick={() => handleUserClick(u)}
                       className={`p-4 rounded-lg border border-border cursor-pointer transition-colors ${
-                        selectedUser?.id === user.id ? 'bg-primary/10 border-primary' : 'hover:bg-accent/5'
+                        selectedUser?.id === u.id ? 'bg-foreground/10 border-foreground/30' : 'hover:bg-accent/5'
                       }`}
                     >
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-semibold">{user.username || user.full_name || 'Unknown User'}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {user.role === 'admin' ? '👑 Admin' : 'User'} • 
-                            Joined {new Date(user.created_at).toLocaleDateString()}
+                          <p className="font-semibold">{u.username || 'Unknown User'}</p>
+                          <p className="text-xs text-foreground/40">
+                            Joined {new Date(u.created_at).toLocaleDateString()}
                           </p>
                         </div>
-                        <Badge variant="secondary">
-                          {getUserFilmCount(user.id)} {getUserFilmCount(user.id) === 1 ? 'film' : 'films'}
+                        <Badge variant="secondary" className="bg-card">
+                          {getUserFilmCount(u.id)} {getUserFilmCount(u.id) === 1 ? 'film' : 'films'}
                         </Badge>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+              </CardContent>
+            </Card>
 
             {/* Selected User's Films */}
-            <Card>
+            <Card className="bg-card border-border">
               <CardHeader>
                 <CardTitle>
-                  {selectedUser ? `${selectedUser.username || selectedUser.full_name || 'Unknown'}'s Films` : 'Select a user'}
+                  {selectedUser ? `${selectedUser.username || 'Unknown'}'s Films` : 'Select a user'}
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-foreground/50">
                   {selectedUser && `${userMovies.length} films uploaded`}
                 </CardDescription>
               </CardHeader>
@@ -411,7 +377,7 @@ const AdminDashboard = () => {
                 {selectedUser ? (
                   <div className="space-y-4">
                     {userMovies.length === 0 ? (
-                      <div className="text-center py-12 text-muted-foreground">
+                      <div className="text-center py-12 text-foreground/40">
                         <Film className="h-12 w-12 mx-auto mb-2 opacity-50" />
                         <p>No films uploaded yet</p>
                       </div>
@@ -420,7 +386,7 @@ const AdminDashboard = () => {
                     )}
                   </div>
                 ) : (
-                  <div className="text-center py-12 text-muted-foreground">
+                  <div className="text-center py-12 text-foreground/40">
                     <Users className="h-12 w-12 mx-auto mb-2 opacity-50" />
                     <p>Select a user from the list to view their films</p>
                   </div>
@@ -433,7 +399,7 @@ const AdminDashboard = () => {
 
       {/* Edit Movie Dialog */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-background border-border">
           <DialogHeader>
             <DialogTitle>Edit Film</DialogTitle>
             <DialogDescription>Update film details</DialogDescription>

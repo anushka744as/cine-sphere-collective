@@ -1,11 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Film } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { signIn, signUp } from "@/lib/auth";
 import { useAuth } from "@/hooks/useAuth";
@@ -14,8 +11,8 @@ const Auth = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
 
-  // Redirect if already logged in
   if (user) {
     navigate("/");
     return null;
@@ -26,8 +23,8 @@ const Auth = () => {
     setIsLoading(true);
 
     const formData = new FormData(e.currentTarget);
-    const email = formData.get("signup-email") as string;
-    const password = formData.get("signup-password") as string;
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
     const confirmPassword = formData.get("confirm-password") as string;
 
     if (password !== confirmPassword) {
@@ -48,6 +45,7 @@ const Auth = () => {
       toast.error(error.message);
     } else {
       toast.success("Account created successfully! You can now sign in.");
+      setIsSignUp(false);
     }
     
     setIsLoading(false);
@@ -58,8 +56,8 @@ const Auth = () => {
     setIsLoading(true);
 
     const formData = new FormData(e.currentTarget);
-    const email = formData.get("signin-email") as string;
-    const password = formData.get("signin-password") as string;
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
 
     const { error } = await signIn(email, password);
 
@@ -73,99 +71,120 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md glass">
-        <CardHeader className="text-center">
-          <div className="flex items-center justify-center space-x-2 mb-4">
-            <Film className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-bold gradient-text">CineSphere</span>
-          </div>
-          <CardTitle>Welcome</CardTitle>
-          <CardDescription>Sign in to your account or create a new one</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="signin">
-              <form onSubmit={handleSignIn} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="signin-email">Email</Label>
-                  <Input
-                    id="signin-email"
-                    name="signin-email"
-                    type="email"
-                    placeholder="you@example.com"
-                    required
-                    disabled={isLoading}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signin-password">Password</Label>
-                  <Input
-                    id="signin-password"
-                    name="signin-password"
-                    type="password"
-                    required
-                    disabled={isLoading}
-                  />
-                </div>
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? "Signing in..." : "Sign In"}
-                </Button>
-              </form>
-            </TabsContent>
-            
-            <TabsContent value="signup">
-              <form onSubmit={handleSignUp} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="signup-email">Email</Label>
-                  <Input
-                    id="signup-email"
-                    name="signup-email"
-                    type="email"
-                    placeholder="you@example.com"
-                    required
-                    disabled={isLoading}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-password">Password</Label>
-                  <Input
-                    id="signup-password"
-                    name="signup-password"
-                    type="password"
-                    required
-                    disabled={isLoading}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="confirm-password">Confirm Password</Label>
-                  <Input
-                    id="confirm-password"
-                    name="confirm-password"
-                    type="password"
-                    required
-                    disabled={isLoading}
-                  />
-                </div>
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? "Creating account..." : "Sign Up"}
-                </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
+    <div className="min-h-screen flex items-center justify-center bg-background px-6">
+      <div className="w-full max-w-sm">
+        <div className="text-center mb-12">
+          <a href="/" className="text-xl font-bold tracking-tight">
+            CINESPHERE
+          </a>
+        </div>
 
-          <div className="mt-4 text-center text-sm text-muted-foreground">
-            <a href="/" className="hover:text-primary transition-colors">
-              Back to Home
-            </a>
+        <div className="space-y-6">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold mb-2">
+              {isSignUp ? 'Create Account' : 'Welcome Back'}
+            </h1>
+            <p className="text-sm text-foreground/50">
+              {isSignUp ? 'Sign up to start sharing films' : 'Sign in to your account'}
+            </p>
           </div>
-        </CardContent>
-      </Card>
+
+          {isSignUp ? (
+            <form onSubmit={handleSignUp} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm text-foreground/70">Email</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  required
+                  disabled={isLoading}
+                  className="bg-card border-border focus:border-foreground/30"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-sm text-foreground/70">Password</Label>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  disabled={isLoading}
+                  className="bg-card border-border focus:border-foreground/30"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirm-password" className="text-sm text-foreground/70">Confirm Password</Label>
+                <Input
+                  id="confirm-password"
+                  name="confirm-password"
+                  type="password"
+                  required
+                  disabled={isLoading}
+                  className="bg-card border-border focus:border-foreground/30"
+                />
+              </div>
+              <Button 
+                type="submit" 
+                className="w-full bg-foreground text-background hover:bg-foreground/90" 
+                disabled={isLoading}
+              >
+                {isLoading ? "Creating account..." : "Sign Up"}
+              </Button>
+            </form>
+          ) : (
+            <form onSubmit={handleSignIn} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm text-foreground/70">Email</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  required
+                  disabled={isLoading}
+                  className="bg-card border-border focus:border-foreground/30"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-sm text-foreground/70">Password</Label>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  disabled={isLoading}
+                  className="bg-card border-border focus:border-foreground/30"
+                />
+              </div>
+              <Button 
+                type="submit" 
+                className="w-full bg-foreground text-background hover:bg-foreground/90" 
+                disabled={isLoading}
+              >
+                {isLoading ? "Signing in..." : "Sign In"}
+              </Button>
+            </form>
+          )}
+
+          <div className="text-center space-y-4">
+            <button
+              type="button"
+              onClick={() => setIsSignUp(!isSignUp)}
+              className="text-sm text-foreground/50 hover:text-foreground transition-colors"
+            >
+              {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
+            </button>
+            
+            <div>
+              <a href="/" className="text-sm text-foreground/40 hover:text-foreground/60 transition-colors">
+                Back to Home
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

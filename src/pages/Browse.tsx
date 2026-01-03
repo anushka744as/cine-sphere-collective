@@ -4,19 +4,17 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import VideoCard from "@/components/VideoCard";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { motion } from "framer-motion";
 import { Loader2, Film } from "lucide-react";
 
 const categories = [
   { id: "all", label: "All" },
-  { id: "nature", label: "Nature & Wildlife" },
+  { id: "nature", label: "Nature" },
   { id: "history", label: "History" },
-  { id: "science", label: "Science & Technology" },
-  { id: "culture", label: "Culture & Society" },
+  { id: "science", label: "Science" },
+  { id: "culture", label: "Culture" },
   { id: "true-crime", label: "True Crime" },
   { id: "biography", label: "Biography" },
-  { id: "travel", label: "Travel & Adventure" },
+  { id: "travel", label: "Travel" },
 ];
 
 const Browse = () => {
@@ -56,87 +54,67 @@ const Browse = () => {
       <Navbar />
       
       {/* Header */}
-      <motion.div 
-        className="pt-24 pb-8 bg-gradient-to-b from-background to-card/20"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-      >
-        <div className="container mx-auto px-4">
+      <div className="pt-32 pb-16">
+        <div className="container mx-auto px-6">
+          <p className="text-xs uppercase tracking-widest text-foreground/50 mb-2">Discover</p>
           <h1 className="text-4xl md:text-6xl font-bold mb-4">
             Browse Films
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl">
-            Discover films from creators worldwide - all free to watch
+          <p className="text-lg text-foreground/60 max-w-xl">
+            Explore films from creators worldwide — all free to watch
           </p>
         </div>
-      </motion.div>
-
-      {/* Filters */}
-      <div className="container mx-auto px-4 py-8">
-        <Tabs defaultValue="all" className="w-full">
-          <TabsList className="w-full justify-start overflow-x-auto flex-wrap h-auto bg-card/50 p-2">
-            {categories.map((category) => (
-              <TabsTrigger
-                key={category.id}
-                value={category.id}
-                onClick={() => setSelectedCategory(category.id)}
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              >
-                {category.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-
-          <TabsContent value={selectedCategory} className="mt-8">
-            {loading ? (
-              <div className="flex justify-center py-20">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : movies.length === 0 ? (
-              <motion.div 
-                className="text-center py-20"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5 }}
-              >
-                <Film className="h-20 w-20 mx-auto mb-4 text-muted-foreground/50" />
-                <h3 className="text-2xl font-semibold mb-2">No Films Found</h3>
-                <p className="text-muted-foreground">No films in this category yet.</p>
-              </motion.div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {movies.map((movie, index) => (
-                  <VideoCard 
-                    key={movie.id}
-                    id={movie.id}
-                    title={movie.title}
-                    thumbnail={movie.thumbnail_url || `https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=800`}
-                    duration={movie.duration || new Date(movie.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                    views={movie.youtube_views?.toString() || movie.views?.toString() || "0"}
-                    category={movie.category}
-                    index={index}
-                  />
-                ))}
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
       </div>
 
-      {/* Load More - Hidden if no content */}
-      {!loading && movies.length > 0 && (
-        <motion.div 
-          className="container mx-auto px-4 py-8 text-center"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-        >
-          <Button variant="outline" size="lg" className="glass">
-            Load More Films
-          </Button>
-        </motion.div>
-      )}
+      {/* Filters */}
+      <div className="container mx-auto px-6 mb-12">
+        <div className="flex flex-wrap gap-2">
+          {categories.map((category) => (
+            <Button
+              key={category.id}
+              variant={selectedCategory === category.id ? "default" : "outline"}
+              size="sm"
+              onClick={() => setSelectedCategory(category.id)}
+              className={
+                selectedCategory === category.id 
+                  ? "bg-foreground text-background" 
+                  : "border-foreground/20 hover:bg-foreground/10"
+              }
+            >
+              {category.label}
+            </Button>
+          ))}
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="container mx-auto px-6 pb-24">
+        {loading ? (
+          <div className="flex justify-center py-20">
+            <Loader2 className="h-6 w-6 animate-spin text-foreground/40" />
+          </div>
+        ) : movies.length === 0 ? (
+          <div className="text-center py-20">
+            <Film className="h-12 w-12 mx-auto mb-4 text-foreground/20" />
+            <h3 className="text-xl font-medium mb-2">No Films Found</h3>
+            <p className="text-foreground/50">No films in this category yet.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {movies.map((movie, index) => (
+              <VideoCard 
+                key={movie.id}
+                id={movie.id}
+                title={movie.title}
+                thumbnail={movie.thumbnail_url || `https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=800`}
+                duration={movie.duration || new Date(movie.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                category={movie.category}
+                index={index}
+              />
+            ))}
+          </div>
+        )}
+      </div>
 
       <Footer />
     </div>
@@ -144,4 +122,3 @@ const Browse = () => {
 };
 
 export default Browse;
-

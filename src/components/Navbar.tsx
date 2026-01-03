@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { Film, Search, User, LogOut, LayoutDashboard, Menu, X } from "lucide-react";
+import { User, LogOut, LayoutDashboard, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { signOut } from "@/lib/auth";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion";
 
 const Navbar = () => {
   const { user } = useAuth();
@@ -33,69 +32,50 @@ const Navbar = () => {
     setIsMobileMenuOpen(false);
   };
 
+  const isActive = (path: string) => location.pathname === path;
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-border">
-      <div className="container mx-auto px-4 py-4">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-transparent">
+      <div className="container mx-auto px-6 py-6">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <a href="/" className="flex items-center space-x-2 z-50">
-            <Film className="h-8 w-8 text-primary" />
-            <span className="text-xl sm:text-2xl font-bold gradient-text">CineSphere</span>
+          <a href="/" className="text-xl font-bold tracking-tight text-foreground z-50">
+            CINESPHERE
           </a>
 
           {/* Desktop Navigation Links */}
-          <div className="hidden lg:flex items-center space-x-8">
+          <div className="hidden lg:flex items-center space-x-10">
             <a 
               href="/" 
-              className={`relative transition-colors ${
-                location.pathname === '/' 
-                  ? 'text-primary font-semibold' 
-                  : 'text-muted-foreground hover:text-primary'
+              className={`text-sm tracking-wide transition-opacity ${
+                isActive('/') ? 'opacity-100' : 'opacity-60 hover:opacity-100'
               }`}
             >
               Home
-              {location.pathname === '/' && (
-                <span className="absolute -bottom-2 left-0 right-0 h-0.5 bg-primary rounded-full"></span>
-              )}
             </a>
-                <a 
-                  href="/featured" 
-                  className={`relative transition-colors ${
-                    location.pathname === '/featured' 
-                      ? 'text-primary font-semibold' 
-                      : 'text-muted-foreground hover:text-primary'
-                  }`}
-                >
-                  Featured
-                  {location.pathname === '/featured' && (
-                    <span className="absolute -bottom-2 left-0 right-0 h-0.5 bg-primary rounded-full"></span>
-                  )}
-                </a>
-                <a
-                  href="/movies"
-                  className={`relative transition-colors ${
-                    location.pathname === '/movies' 
-                      ? 'text-primary font-semibold' 
-                      : 'text-muted-foreground hover:text-primary'
-                  }`}
-                >
-                  Films
-                  {location.pathname === '/movies' && (
-                    <span className="absolute -bottom-2 left-0 right-0 h-0.5 bg-primary rounded-full"></span>
-                  )}
-                </a>
+            <a 
+              href="/featured" 
+              className={`text-sm tracking-wide transition-opacity ${
+                isActive('/featured') ? 'opacity-100' : 'opacity-60 hover:opacity-100'
+              }`}
+            >
+              Featured
+            </a>
+            <a
+              href="/movies"
+              className={`text-sm tracking-wide transition-opacity ${
+                isActive('/movies') ? 'opacity-100' : 'opacity-60 hover:opacity-100'
+              }`}
+            >
+              Films
+            </a>
             <a 
               href="/about" 
-              className={`relative transition-colors ${
-                location.pathname === '/about' 
-                  ? 'text-primary font-semibold' 
-                  : 'text-muted-foreground hover:text-primary'
+              className={`text-sm tracking-wide transition-opacity ${
+                isActive('/about') ? 'opacity-100' : 'opacity-60 hover:opacity-100'
               }`}
             >
               About
-              {location.pathname === '/about' && (
-                <span className="absolute -bottom-2 left-0 right-0 h-0.5 bg-primary rounded-full"></span>
-              )}
             </a>
           </div>
 
@@ -107,7 +87,7 @@ const Navbar = () => {
                   variant="ghost"
                   size="sm"
                   onClick={() => navigate("/dashboard")}
-                  className="text-foreground hover:text-primary"
+                  className="text-foreground opacity-60 hover:opacity-100"
                 >
                   <LayoutDashboard className="h-4 w-4 mr-2" />
                   Dashboard
@@ -116,7 +96,7 @@ const Navbar = () => {
                   variant="outline"
                   size="sm"
                   onClick={handleSignOut}
-                  className="glass"
+                  className="border-foreground/20 hover:bg-foreground hover:text-background"
                 >
                   <LogOut className="h-4 w-4 mr-2" />
                   Sign Out
@@ -127,7 +107,7 @@ const Navbar = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => navigate("/auth")}
-                className="glass"
+                className="border-foreground/20 hover:bg-foreground hover:text-background"
               >
                 <User className="h-4 w-4 mr-2" />
                 Sign In
@@ -152,95 +132,75 @@ const Navbar = () => {
       </div>
 
       {/* Mobile Menu */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden border-t border-border bg-background/95 backdrop-blur-md"
-          >
-            <div className="container mx-auto px-4 py-4 space-y-4">
-              {/* Mobile Navigation Links */}
-              <div className="space-y-2">
-                <button
-                  onClick={() => handleNavigation('/')}
-                  className={`block w-full text-left px-4 py-3 rounded-lg transition-colors ${
-                    location.pathname === '/' 
-                      ? 'bg-primary text-primary-foreground font-semibold' 
-                      : 'hover:bg-accent'
-                  }`}
-                >
-                  Home
-                </button>
-                <button
-                  onClick={() => handleNavigation('/featured')}
-                  className={`block w-full text-left px-4 py-3 rounded-lg transition-colors ${
-                    location.pathname === '/featured' 
-                      ? 'bg-primary text-primary-foreground font-semibold' 
-                      : 'hover:bg-accent'
-                  }`}
-                >
-                  Featured
-                </button>
-                <button
-                  onClick={() => handleNavigation('/movies')}
-                  className={`block w-full text-left px-4 py-3 rounded-lg transition-colors ${
-                    location.pathname === '/movies' 
-                      ? 'bg-primary text-primary-foreground font-semibold' 
-                      : 'hover:bg-accent'
-                  }`}
-                >
-                  Films
-                </button>
-                <button
-                  onClick={() => handleNavigation('/about')}
-                  className={`block w-full text-left px-4 py-3 rounded-lg transition-colors ${
-                    location.pathname === '/about' 
-                      ? 'bg-primary text-primary-foreground font-semibold' 
-                      : 'hover:bg-accent'
-                  }`}
-                >
-                  About
-                </button>
-              </div>
+      {isMobileMenuOpen && (
+        <div className="lg:hidden fixed inset-0 bg-background z-40 pt-24">
+          <div className="container mx-auto px-6 py-8 space-y-6">
+            <button
+              onClick={() => handleNavigation('/')}
+              className={`block w-full text-left text-2xl py-3 ${
+                isActive('/') ? 'opacity-100' : 'opacity-60'
+              }`}
+            >
+              Home
+            </button>
+            <button
+              onClick={() => handleNavigation('/featured')}
+              className={`block w-full text-left text-2xl py-3 ${
+                isActive('/featured') ? 'opacity-100' : 'opacity-60'
+              }`}
+            >
+              Featured
+            </button>
+            <button
+              onClick={() => handleNavigation('/movies')}
+              className={`block w-full text-left text-2xl py-3 ${
+                isActive('/movies') ? 'opacity-100' : 'opacity-60'
+              }`}
+            >
+              Films
+            </button>
+            <button
+              onClick={() => handleNavigation('/about')}
+              className={`block w-full text-left text-2xl py-3 ${
+                isActive('/about') ? 'opacity-100' : 'opacity-60'
+              }`}
+            >
+              About
+            </button>
 
-              {/* Mobile Auth Actions */}
-              <div className="pt-4 border-t border-border space-y-2">
-                {user ? (
-                  <>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start"
-                      onClick={() => handleNavigation("/dashboard")}
-                    >
-                      <LayoutDashboard className="h-4 w-4 mr-2" />
-                      Dashboard
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start"
-                      onClick={handleSignOut}
-                    >
-                      <LogOut className="h-4 w-4 mr-2" />
-                      Sign Out
-                    </Button>
-                  </>
-                ) : (
+            <div className="pt-8 border-t border-border space-y-4">
+              {user ? (
+                <>
                   <Button
-                    variant="default"
-                    className="w-full"
-                    onClick={() => handleNavigation("/auth")}
+                    variant="outline"
+                    className="w-full justify-start border-foreground/20"
+                    onClick={() => handleNavigation("/dashboard")}
                   >
-                    <User className="h-4 w-4 mr-2" />
-                    Sign In
+                    <LayoutDashboard className="h-4 w-4 mr-2" />
+                    Dashboard
                   </Button>
-                )}
-              </div>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start border-foreground/20"
+                    onClick={handleSignOut}
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  className="w-full bg-foreground text-background hover:bg-foreground/90"
+                  onClick={() => handleNavigation("/auth")}
+                >
+                  <User className="h-4 w-4 mr-2" />
+                  Sign In
+                </Button>
+              )}
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        </div>
+      )}
     </nav>
   );
 };
