@@ -79,7 +79,11 @@ const Movies = () => {
 
       {/* Film Detail Overlay */}
       {selectedFilm && (
-        <FilmDetailOverlay film={selectedFilm} onClose={closeOverlay} />
+        <FilmDetailOverlay 
+          film={selectedFilm} 
+          onClose={closeOverlay}
+          onSelectFilm={setSelectedFilm}
+        />
       )}
     </div>
   );
