@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import Featured from "./pages/Featured";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
+import { SplitScrollDemo } from "./components/SplitScroll";
 
 const queryClient = new QueryClient();
 
@@ -19,16 +20,17 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/featured" element={<Featured />} />
-                  <Route path="/curated" element={<Featured />} /> {/* Redirect old URL */}
-                  <Route path="/movies" element={<Movies />} />
+          <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/featured" element={<Featured />} />
+          <Route path="/curated" element={<Featured />} /> {/* Redirect old URL */}
+          <Route path="/movies" element={<Movies />} />
           <Route path="/movie/:id" element={<MovieDetail />} />
           <Route path="/about" element={<About />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/split-scroll" element={<SplitScrollDemo />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

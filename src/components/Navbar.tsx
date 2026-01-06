@@ -25,7 +25,7 @@ const Navbar = () => {
     if (!confirm("Are you sure you want to sign out?")) {
       return;
     }
-    
+
     const { error } = await signOut();
     if (error) {
       toast.error("Failed to sign out");
@@ -44,9 +44,8 @@ const Navbar = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      scrolled ? "bg-background/95 backdrop-blur-md" : "bg-transparent"
-    }`}>
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "bg-background/95 backdrop-blur-md" : "bg-transparent"
+      }`}>
       <div className="container mx-auto px-6 py-6">
         <div className="flex items-center justify-between">
           {/* Logo */}
@@ -56,35 +55,31 @@ const Navbar = () => {
 
           {/* Desktop Navigation Links */}
           <div className="hidden lg:flex items-center space-x-10">
-            <a 
-              href="/" 
-              className={`text-sm tracking-wide transition-opacity ${
-                isActive('/') ? 'opacity-100' : 'opacity-60 hover:opacity-100'
-              }`}
+            <a
+              href="/"
+              className={`text-sm tracking-wide transition-opacity ${isActive('/') ? 'opacity-100' : 'opacity-60 hover:opacity-100'
+                }`}
             >
               Home
             </a>
-            <a 
-              href="/featured" 
-              className={`text-sm tracking-wide transition-opacity ${
-                isActive('/featured') ? 'opacity-100' : 'opacity-60 hover:opacity-100'
-              }`}
+            <a
+              href="/featured"
+              className={`text-sm tracking-wide transition-opacity ${isActive('/featured') ? 'opacity-100' : 'opacity-60 hover:opacity-100'
+                }`}
             >
               Featured
             </a>
             <a
               href="/movies"
-              className={`text-sm tracking-wide transition-opacity ${
-                isActive('/movies') ? 'opacity-100' : 'opacity-60 hover:opacity-100'
-              }`}
+              className={`text-sm tracking-wide transition-opacity ${isActive('/movies') ? 'opacity-100' : 'opacity-60 hover:opacity-100'
+                }`}
             >
               Films
             </a>
-            <a 
-              href="/about" 
-              className={`text-sm tracking-wide transition-opacity ${
-                isActive('/about') ? 'opacity-100' : 'opacity-60 hover:opacity-100'
-              }`}
+            <a
+              href="/about"
+              className={`text-sm tracking-wide transition-opacity ${isActive('/about') ? 'opacity-100' : 'opacity-60 hover:opacity-100'
+                }`}
             >
               About
             </a>
@@ -148,33 +143,29 @@ const Navbar = () => {
           <div className="container mx-auto px-6 py-8 space-y-6">
             <button
               onClick={() => handleNavigation('/')}
-              className={`block w-full text-left text-2xl py-3 ${
-                isActive('/') ? 'opacity-100' : 'opacity-60'
-              }`}
+              className={`block w-full text-left text-2xl py-3 ${isActive('/') ? 'opacity-100' : 'opacity-60'
+                }`}
             >
               Home
             </button>
             <button
               onClick={() => handleNavigation('/featured')}
-              className={`block w-full text-left text-2xl py-3 ${
-                isActive('/featured') ? 'opacity-100' : 'opacity-60'
-              }`}
+              className={`block w-full text-left text-2xl py-3 ${isActive('/featured') ? 'opacity-100' : 'opacity-60'
+                }`}
             >
               Featured
             </button>
             <button
               onClick={() => handleNavigation('/movies')}
-              className={`block w-full text-left text-2xl py-3 ${
-                isActive('/movies') ? 'opacity-100' : 'opacity-60'
-              }`}
+              className={`block w-full text-left text-2xl py-3 ${isActive('/movies') ? 'opacity-100' : 'opacity-60'
+                }`}
             >
               Films
             </button>
             <button
               onClick={() => handleNavigation('/about')}
-              className={`block w-full text-left text-2xl py-3 ${
-                isActive('/about') ? 'opacity-100' : 'opacity-60'
-              }`}
+              className={`block w-full text-left text-2xl py-3 ${isActive('/about') ? 'opacity-100' : 'opacity-60'
+                }`}
             >
               About
             </button>

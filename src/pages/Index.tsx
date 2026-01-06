@@ -29,7 +29,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      
+
       {/* Hero Carousel */}
       <HeroCarousel onFilmClick={handleFilmClick} />
 
@@ -70,7 +70,7 @@ const Index = () => {
             </p>
             <h2 className="text-4xl md:text-5xl font-bold mb-6">Share Your Story</h2>
             <p className="text-lg text-foreground/60 mb-10 leading-relaxed">
-              Have a film on YouTube? Submit it to CineSphere and reach an audience 
+              Have a film on YouTube? Submit it to CineSphere and reach an audience
               passionate about cinema. It's completely free.
             </p>
             <button
@@ -88,8 +88,8 @@ const Index = () => {
 
       {/* Film Detail Overlay */}
       {selectedFilm && (
-        <FilmDetailOverlay 
-          film={selectedFilm} 
+        <FilmDetailOverlay
+          film={selectedFilm}
           onClose={closeOverlay}
           onSelectFilm={setSelectedFilm}
         />

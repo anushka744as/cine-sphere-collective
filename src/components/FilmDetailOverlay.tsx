@@ -65,7 +65,7 @@ const FilmDetailOverlay = ({ film, onClose, onSelectFilm }: FilmDetailOverlayPro
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
-                  
+
                   {/* Play Button Overlay */}
                   <button
                     onClick={() => setIsPlaying(true)}
@@ -194,10 +194,10 @@ const FilmDetailOverlay = ({ film, onClose, onSelectFilm }: FilmDetailOverlayPro
                   {/* Additional Info Paragraph */}
                   <div className="mb-10 max-w-3xl">
                     <p className="text-foreground/60 leading-relaxed">
-                      This film resonates because it reflects life as it is: honest, emotional, and deeply human. 
-                      Leaning on the beauty of natural light and a naturalistic shooting style, audiences are 
-                      transported to the story's emotional core. The director's vision creates an immersive 
-                      experience that lingers long after the credits roll, inviting viewers to reflect on their 
+                      This film resonates because it reflects life as it is: honest, emotional, and deeply human.
+                      Leaning on the beauty of natural light and a naturalistic shooting style, audiences are
+                      transported to the story's emotional core. The director's vision creates an immersive
+                      experience that lingers long after the credits roll, inviting viewers to reflect on their
                       own experiences and connections.
                     </p>
                   </div>
