@@ -64,17 +64,51 @@ const FilmDetailOverlay = ({ film, onClose, onSelectFilm }: FilmDetailOverlayPro
                     alt={film.title}
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background via-black/40 to-transparent" />
 
                   {/* Play Button Overlay */}
                   <button
                     onClick={() => setIsPlaying(true)}
-                    className="absolute inset-0 flex items-center justify-center group"
+                    className="absolute inset-0 flex items-center justify-center group z-20"
                   >
-                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-full border-2 border-foreground/50 flex items-center justify-center group-hover:border-foreground group-hover:bg-foreground transition-all duration-300">
-                      <Play className="h-8 w-8 md:h-10 md:w-10 text-foreground group-hover:text-background transition-colors fill-current ml-1" />
+                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-full border-2 border-white/50 flex items-center justify-center group-hover:border-white group-hover:bg-white/10 transition-all duration-300 backdrop-blur-sm">
+                      <Play className="h-8 w-8 md:h-10 md:w-10 text-white group-hover:text-white transition-colors fill-current ml-1" />
                     </div>
                   </button>
+
+                  {/* New Content Overlay (Visible only when not playing) */}
+                  <div className="absolute inset-0 flex items-center justify-start p-8 md:p-16 z-10 pointer-events-none">
+                    <div className="max-w-xl text-left space-y-6">
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium tracking-widest uppercase text-white/70">
+                          Written & Directed by
+                        </p>
+                        <h2 className="text-4xl md:text-6xl font-serif text-white tracking-tight">
+                          {film.director}
+                        </h2>
+                      </div>
+
+                      <p className="text-lg md:text-xl text-white/90 leading-relaxed font-light line-clamp-4 drop-shadow-md">
+                        {film.description}
+                      </p>
+
+                      <div className="space-y-3 pt-4">
+                        <p className="text-xs uppercase tracking-widest text-white/60 font-medium">
+                          Characteristics
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {film.characteristics.slice(0, 4).map((char) => (
+                            <span
+                              key={char}
+                              className="px-3 py-1 border border-white/20 rounded-full text-[10px] uppercase tracking-wider text-white backdrop-blur-md"
+                            >
+                              {char}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Content Section */}

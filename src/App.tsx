@@ -30,8 +30,6 @@ const App = () => (
           <Route path="/movie/:id" element={<MovieDetail />} />
           <Route path="/about" element={<About />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/split-scroll" element={<SplitScrollDemo />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
