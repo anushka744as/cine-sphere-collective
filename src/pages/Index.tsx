@@ -1,175 +1,95 @@
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 import Navbar from "@/components/Navbar";
-import Hero from "@/components/Hero";
-import VideoCard from "@/components/VideoCard";
 import Footer from "@/components/Footer";
-import { Loader2, Film, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import HeroCarousel from "@/components/HeroCarousel";
+import FilmGrid from "@/components/FilmGrid";
+import FilmCarousel from "@/components/FilmCarousel";
+import FilmDetailOverlay from "@/components/FilmDetailOverlay";
+import { dummyFilms, Film } from "@/data/dummyFilms";
+import { ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Index = () => {
   const navigate = useNavigate();
-  const [featuredMovies, setFeaturedMovies] = useState<any[]>([]);
-  const [trendingMovies, setTrendingMovies] = useState<any[]>([]);
-  const [recentMovies, setRecentMovies] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [selectedFilm, setSelectedFilm] = useState<Film | null>(null);
 
-  useEffect(() => {
-    fetchMovies();
-  }, []);
-
-  const fetchMovies = async () => {
-    try {
-      // Fetch featured films (top viewed)
-      const { data: featured, error: featuredError } = await supabase
-        .from('movies')
-        .select('*')
-        .eq('status', 'approved')
-        .order('views', { ascending: false, nullsFirst: false })
-        .limit(6);
-
-      if (featuredError) throw featuredError;
-      setFeaturedMovies(featured || []);
-
-      // Fetch trending (most viewed)
-      const { data: trending, error: trendingError } = await supabase
-        .from('movies')
-        .select('*')
-        .eq('status', 'approved')
-        .order('views', { ascending: false, nullsFirst: false })
-        .limit(3);
-
-      if (trendingError) throw trendingError;
-      setTrendingMovies(trending || []);
-
-      // Fetch recent films
-      const { data: recent, error: recentError } = await supabase
-        .from('movies')
-        .select('*')
-        .eq('status', 'approved')
-        .order('created_at', { ascending: false })
-        .limit(9);
-
-      if (recentError) throw recentError;
-      setRecentMovies(recent || []);
-    } catch (error) {
-      console.error('Error fetching movies:', error);
-    } finally {
-      setLoading(false);
-    }
+  const handleFilmClick = (film: Film) => {
+    setSelectedFilm(film);
   };
 
-  const displayMovies = featuredMovies.length > 0 ? featuredMovies : recentMovies;
+  const closeOverlay = () => {
+    setSelectedFilm(null);
+  };
+
+  // Split films into sections
+  const featuredFilms = dummyFilms.slice(0, 6);
+  const newReleases = dummyFilms.slice(3, 9);
+  const curatedPicks = dummyFilms.slice(6, 12);
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <Hero />
       
-      {/* Featured Section */}
-      <section className="container mx-auto px-6 py-24">
-        <div className="flex items-end justify-between mb-12">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-foreground/50 mb-2">
-              {featuredMovies.length > 0 ? 'Curated Selection' : 'Latest Additions'}
-            </p>
-            <h2 className="text-3xl md:text-4xl font-bold">
-              {featuredMovies.length > 0 ? 'Featured Films' : 'Recent Films'}
-            </h2>
-          </div>
-          <Button 
-            variant="ghost" 
-            className="hidden md:flex items-center gap-2 text-foreground/60 hover:text-foreground"
-            onClick={() => navigate('/movies')}
-          >
-            View All
-            <ArrowRight className="h-4 w-4" />
-          </Button>
-        </div>
-        
-        {loading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="h-6 w-6 animate-spin text-foreground/40" />
-          </div>
-        ) : displayMovies.length === 0 ? (
-          <div className="text-center py-20">
-            <Film className="h-12 w-12 mx-auto mb-4 text-foreground/20" />
-            <p className="text-foreground/50">No films yet. Be the first to share!</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {displayMovies.map((movie, index) => (
-              <VideoCard
-                key={movie.id}
-                id={movie.id}
-                title={movie.title}
-                thumbnail={movie.thumbnail_url || `https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=800`}
-                duration={movie.duration || new Date(movie.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                category={movie.category}
-                index={index}
-              />
-            ))}
-          </div>
-        )}
+      {/* Hero Carousel */}
+      <HeroCarousel onFilmClick={handleFilmClick} />
 
-        <Button 
-          variant="outline" 
-          className="md:hidden mt-8 w-full border-foreground/20"
-          onClick={() => navigate('/movies')}
-        >
-          View All Films
-        </Button>
-      </section>
+      {/* Featured Films Grid */}
+      <FilmGrid
+        films={featuredFilms}
+        onFilmClick={handleFilmClick}
+        title="Featured Films"
+        subtitle="Film & TV"
+      />
 
-      {/* Trending Section */}
-      {trendingMovies.length > 0 && (
-        <section className="bg-card/30 py-24">
-          <div className="container mx-auto px-6">
-            <div className="mb-12">
-              <p className="text-xs uppercase tracking-widest text-foreground/50 mb-2">Popular Now</p>
-              <h2 className="text-3xl md:text-4xl font-bold">Trending Films</h2>
-            </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {trendingMovies.map((movie, index) => (
-                <VideoCard
-                  key={movie.id}
-                  id={movie.id}
-                  title={movie.title}
-                  thumbnail={movie.thumbnail_url || `https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=800`}
-                  duration={movie.duration || new Date(movie.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                  category={movie.category}
-                  index={index}
-                />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+      {/* New Releases Carousel */}
+      <div className="border-t border-foreground/10">
+        <FilmCarousel
+          films={newReleases}
+          onFilmClick={handleFilmClick}
+          title="New Releases"
+          subtitle="Just Added"
+        />
+      </div>
+
+      {/* Curated Picks Carousel */}
+      <div className="border-t border-foreground/10">
+        <FilmCarousel
+          films={curatedPicks}
+          onFilmClick={handleFilmClick}
+          title="Curated Picks"
+          subtitle="Editor's Choice"
+        />
+      </div>
 
       {/* Editorial Section */}
-      <section className="container mx-auto px-6 py-24">
-        <div className="relative overflow-hidden rounded-sm bg-card/50 p-12 md:p-20">
-          <div className="relative z-10 max-w-xl">
-            <p className="text-xs uppercase tracking-widest text-foreground/50 mb-4">Join the Community</p>
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">Share Your Story</h2>
-            <p className="text-foreground/60 mb-8 leading-relaxed">
-              Have a film on YouTube? Submit it to CineSphere and reach an audience passionate about cinema. 
-              It's completely free.
+      <section className="border-t border-foreground/10 py-24">
+        <div className="container mx-auto px-6 lg:px-12">
+          <div className="max-w-3xl">
+            <p className="text-xs uppercase tracking-widest text-foreground/50 mb-4">
+              Join the Community
             </p>
-            <Button 
-              className="bg-foreground text-background hover:bg-foreground/90"
-              onClick={() => navigate('/auth')}
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">Share Your Story</h2>
+            <p className="text-lg text-foreground/60 mb-10 leading-relaxed">
+              Have a film on YouTube? Submit it to CineSphere and reach an audience 
+              passionate about cinema. It's completely free.
+            </p>
+            <button
+              onClick={() => navigate("/auth")}
+              className="group inline-flex items-center gap-3 text-foreground border border-foreground/30 px-8 py-4 hover:bg-foreground hover:text-background transition-all duration-300"
             >
-              Get Started
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+              <span className="text-sm uppercase tracking-widest">Get Started</span>
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </button>
           </div>
         </div>
       </section>
 
       <Footer />
+
+      {/* Film Detail Overlay */}
+      {selectedFilm && (
+        <FilmDetailOverlay film={selectedFilm} onClose={closeOverlay} />
+      )}
     </div>
   );
 };
