@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { User, LogOut, LayoutDashboard, Menu, X, Bookmark, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { signOut } from "@/lib/auth";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -23,19 +24,18 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleSignOut = async () => {
-    if (!confirm("Are you sure you want to sign out?")) {
-      return;
-    }
+  const [isSignOutDialogOpen, setIsSignOutDialogOpen] = useState(false);
 
+  const handleSignOut = async () => {
     const { error } = await signOut();
+    setIsSignOutDialogOpen(false);
+    setIsMobileMenuOpen(false);
     if (error) {
       toast.error("Failed to sign out");
     } else {
       toast.success("Signed out successfully");
       navigate("/");
     }
-    setIsMobileMenuOpen(false);
   };
 
   const handleNavigation = (path: string) => {
@@ -116,10 +116,38 @@ const Navbar = () => {
                   <LayoutDashboard className="h-4 w-4 mr-2" />
                   Dashboard
                 </Button>
+                <Dialog open={isSignOutDialogOpen} onOpenChange={setIsSignOutDialogOpen}>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Confirm Sign Out</DialogTitle>
+                      <DialogDescription>
+                        Are you sure you want to sign out? This will clear any session-specific state.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setIsSignOutDialogOpen(false)}
+                        className="border-foreground/20"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        type="button"
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/80"
+                        onClick={handleSignOut}
+                      >
+                        <LogOut className="h-4 w-4 mr-2" />
+                        Sign Out
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={handleSignOut}
+                  onClick={() => setIsSignOutDialogOpen(true)}
                   className="border-foreground/20 hover:bg-foreground hover:text-background"
                 >
                   <LogOut className="h-4 w-4 mr-2" />
@@ -214,7 +242,10 @@ const Navbar = () => {
                   <Button
                     variant="outline"
                     className="w-full justify-start border-foreground/20"
-                    onClick={handleSignOut}
+                    onClick={() => {
+                      setIsSignOutDialogOpen(true);
+                      setIsMobileMenuOpen(false);
+                    }}
                   >
                     <LogOut className="h-4 w-4 mr-2" />
                     Sign Out

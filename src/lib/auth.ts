@@ -34,11 +34,11 @@ export const getCurrentUser = async () => {
 };
 
 export const getUserRole = async (userId: string) => {
-  // Check user_roles table for admin role
+  // Read the role flag defined on the user's profile record
   const { data, error } = await supabase
-    .from('user_roles')
+    .from('profiles')
     .select('role')
-    .eq('user_id', userId)
+    .eq('id', userId)
     .single();
   
   return { role: data?.role || 'user', error };

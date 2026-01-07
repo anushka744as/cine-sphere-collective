@@ -95,6 +95,10 @@ const MovieDetail = () => {
   }
 
   const embedUrl = getYouTubeEmbedUrl(movie.youtube_url);
+  const hasSupplementalDetails =
+    (movie.cast_members?.length ?? 0) > 0 ||
+    (movie.awards?.length ?? 0) > 0 ||
+    (movie.characteristics?.length ?? 0) > 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -207,6 +211,36 @@ const MovieDetail = () => {
                       <dd className="font-medium">{movie.duration}</dd>
                     </div>
                   )}
+                  {movie.year && (
+                    <div>
+                      <dt className="text-sm text-muted-foreground">Release Year</dt>
+                      <dd className="font-medium">{movie.year}</dd>
+                    </div>
+                  )}
+                  {movie.country && (
+                    <div>
+                      <dt className="text-sm text-muted-foreground">Country</dt>
+                      <dd className="font-medium">{movie.country}</dd>
+                    </div>
+                  )}
+                  {movie.language && (
+                    <div>
+                      <dt className="text-sm text-muted-foreground">Language</dt>
+                      <dd className="font-medium">{movie.language}</dd>
+                    </div>
+                  )}
+                  {movie.director && (
+                    <div>
+                      <dt className="text-sm text-muted-foreground">Director</dt>
+                      <dd className="font-medium">{movie.director}</dd>
+                    </div>
+                  )}
+                  {movie.cinematographer && (
+                    <div>
+                      <dt className="text-sm text-muted-foreground">Cinematographer</dt>
+                      <dd className="font-medium">{movie.cinematographer}</dd>
+                    </div>
+                  )}
                   <div>
                     <dt className="text-sm text-muted-foreground">Status</dt>
                     <dd className="font-medium capitalize">{movie.status}</dd>
@@ -220,6 +254,48 @@ const MovieDetail = () => {
                 </dl>
               </CardContent>
             </Card>
+            {hasSupplementalDetails && (
+              <Card className="mt-6">
+                <CardContent className="p-6 space-y-6">
+                  {movie.cast_members?.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-semibold">Cast</h3>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {movie.cast_members.map((member) => (
+                          <Badge key={member} variant="outline">
+                            {member}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {movie.awards?.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-semibold">Awards & Recognition</h3>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {movie.awards.map((award) => (
+                          <Badge key={award} variant="secondary">
+                            {award}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {movie.characteristics?.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-semibold">Characteristics</h3>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {movie.characteristics.map((charItem) => (
+                          <Badge key={charItem} variant="outline">
+                            {charItem}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </main>

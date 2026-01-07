@@ -41,6 +41,15 @@ CREATE TABLE public.movies (
   thumbnail_url text,
   category text NOT NULL,
   genre text,
+  year integer,
+  country text,
+  language text,
+  director text,
+  director_bio text,
+  cinematographer text,
+  characteristics text[],
+  cast_members text[],
+  awards text[],
   duration text,
   views integer DEFAULT 0,
   youtube_views integer DEFAULT 0,
@@ -224,6 +233,41 @@ CREATE POLICY "Users can delete their own movies"
   ON public.movies FOR DELETE
   TO authenticated
   USING (auth.uid() = uploaded_by OR public.is_admin(auth.uid()));
+
+-- ============================================================================
+-- WATCHLISTS TABLE
+-- ============================================================================
+
+CREATE TABLE public.watchlists (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid REFERENCES public.profiles(id) ON DELETE CASCADE,
+  film_id text NOT NULL,
+  film_snapshot jsonb,
+  created_at timestamptz DEFAULT now()
+);
+
+ALTER TABLE public.watchlists ENABLE ROW LEVEL SECURITY;
+
+CREATE INDEX idx_watchlists_user ON public.watchlists(user_id);
+CREATE INDEX idx_watchlists_user_film ON public.watchlists(user_id, film_id);
+
+DROP POLICY IF EXISTS "Watchlists are accessible to owner" ON public.watchlists;
+CREATE POLICY "Watchlists are accessible to owner"
+  ON public.watchlists FOR SELECT
+  TO authenticated
+  USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can insert watchlists entries" ON public.watchlists;
+CREATE POLICY "Users can insert watchlists entries"
+  ON public.watchlists FOR INSERT
+  TO authenticated
+  WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can delete their own watchlist entries" ON public.watchlists;
+CREATE POLICY "Users can delete their own watchlist entries"
+  ON public.watchlists FOR DELETE
+  TO authenticated
+  USING (auth.uid() = user_id);
 
 -- ============================================================================
 -- CUSTOM CATEGORIES POLICIES

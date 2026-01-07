@@ -53,21 +53,21 @@ export const AwardCard = ({ awardName, compact = false }: AwardCardProps) => {
 
   if (error || !awardInfo) {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="p-4 bg-muted/20 rounded-xl border border-border/30"
-      >
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-            <Award className="h-5 w-5 text-primary" />
-          </div>
-          <div>
-            <h4 className="font-medium text-foreground">{awardName}</h4>
-            <p className="text-xs text-muted-foreground">Award recognition</p>
-          </div>
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="p-4 bg-muted/20 rounded-xl border border-border/30"
+    >
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+          <Award className="h-5 w-5 text-primary" />
         </div>
-      </motion.div>
+        <div>
+          <h4 className="font-medium text-foreground">{awardName}</h4>
+          <p className="text-xs text-muted-foreground">Wikipedia summary unavailable</p>
+        </div>
+      </div>
+    </motion.div>
     );
   }
 

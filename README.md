@@ -59,8 +59,9 @@ After signing up:
 3. Run in SQL Editor:
 
 ```sql
-INSERT INTO public.user_roles (user_id, role) 
-VALUES ('YOUR_UUID_HERE', 'admin');
+UPDATE public.profiles
+SET role = 'admin'
+WHERE id = 'YOUR_UUID_HERE';
 ```
 
 ## 📝 Available Scripts

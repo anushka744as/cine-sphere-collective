@@ -58,12 +58,13 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
   const [country, setCountry] = useState(initialData?.country || "");
   const [language, setLanguage] = useState(initialData?.language || "");
   const [selectedCharacteristics, setSelectedCharacteristics] = useState<string[]>(initialData?.characteristics || []);
+  const [youtubeVideoId, setYoutubeVideoId] = useState(initialData?.youtube_video_id || "");
   
   // Credits
   const [director, setDirector] = useState(initialData?.director || "");
   const [directorBio, setDirectorBio] = useState(initialData?.director_bio || "");
   const [cinematographer, setCinematographer] = useState(initialData?.cinematographer || "");
-  const [cast, setCast] = useState<string[]>(initialData?.cast || []);
+  const [cast, setCast] = useState<string[]>(initialData?.cast_members || []);
   const [newCastMember, setNewCastMember] = useState("");
   
   // Awards
@@ -77,11 +78,19 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
   };
 
   useEffect(() => {
-    if (youtubeUrl) {
-      const extractedId = extractYouTubeId(youtubeUrl);
-      if (extractedId) {
-        setThumbnailUrl(`https://img.youtube.com/vi/${extractedId}/maxresdefault.jpg`);
-      }
+    if (!youtubeUrl) {
+      setThumbnailUrl("");
+      setYoutubeVideoId("");
+      return;
+    }
+
+    const extractedId = extractYouTubeId(youtubeUrl);
+    if (extractedId) {
+      setThumbnailUrl(`https://img.youtube.com/vi/${extractedId}/maxresdefault.jpg`);
+      setYoutubeVideoId(extractedId);
+    } else {
+      setThumbnailUrl("");
+      setYoutubeVideoId("");
     }
   }, [youtubeUrl]);
 
@@ -133,14 +142,33 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
         return;
       }
 
+      if (!director.trim()) {
+        toast.error("Director name is required");
+        setLoading(false);
+        return;
+      }
+
+      const parsedYear = year ? parseInt(year, 10) : null;
+      const normalizedYear = Number.isNaN(parsedYear) ? null : parsedYear;
+
       const movieData: any = {
         title: title.trim(),
         description: description.trim(),
         youtube_url: youtubeUrl.trim(),
+        youtube_video_id: youtubeVideoId || null,
         thumbnail_url: thumbnailUrl,
         category: finalCategory,
         genre: finalGenre || null,
         duration: duration || null,
+        year: normalizedYear,
+        country: country || null,
+        language: language || null,
+        director: director || null,
+        director_bio: directorBio || null,
+        cinematographer: cinematographer || null,
+        cast_members: cast.length ? cast : null,
+        awards: awards.length ? awards : null,
+        characteristics: selectedCharacteristics.length ? selectedCharacteristics : null,
       };
 
       if (!initialData) {
@@ -233,7 +261,8 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
             <div className="space-y-2">
               <Label htmlFor="title" className="flex items-center gap-2 text-foreground/70">
                 <Film className="h-4 w-4" />
-                Title *
+                Title
+                <span className="text-destructive text-xs font-semibold">*</span>
               </Label>
               <Input 
                 id="title" 
@@ -264,7 +293,10 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
             <div className="space-y-2">
               <Label htmlFor="youtube_url" className="flex items-center gap-2 text-foreground/70">
                 <Youtube className="h-4 w-4" />
-                YouTube URL *
+                <span className="flex items-center gap-1">
+                  YouTube URL
+                  <span className="text-destructive text-xs font-semibold">*</span>
+                </span>
               </Label>
               <Input 
                 id="youtube_url" 
@@ -287,7 +319,10 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Category */}
               <div className="space-y-2">
-                <Label className="text-foreground/70">Category *</Label>
+                <Label className="text-foreground/70 flex items-center gap-1">
+                  <span>Category</span>
+                  <span className="text-destructive text-xs font-semibold">*</span>
+                </Label>
                 <Select value={category} onValueChange={setCategory} disabled={loading}>
                   <SelectTrigger className="bg-card border-border">
                     <SelectValue placeholder="Select category..." />
@@ -460,12 +495,16 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
             <div className="space-y-2">
               <Label className="flex items-center gap-2 text-foreground/70">
                 <Users className="h-4 w-4" />
-                Director
+                <span className="flex items-center gap-1">
+                  Director
+                  <span className="text-destructive text-xs font-semibold">*</span>
+                </span>
               </Label>
               <Input 
                 value={director}
                 onChange={(e) => setDirector(e.target.value)}
                 placeholder="Director name..."
+                required
                 disabled={loading}
                 className="bg-card border-border"
               />
@@ -538,7 +577,9 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
                 <Award className="h-4 w-4" />
                 Awards & Recognition
               </Label>
-              <p className="text-xs text-foreground/40">Add award names to auto-fetch details from Wikipedia</p>
+              <p className="text-xs text-foreground/40">
+                Add award names to auto-fetch details from Wikipedia (optional).
+              </p>
               <div className="flex gap-2">
                 <Input 
                   value={newAward}
@@ -574,7 +615,7 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
       </AnimatePresence>
 
       {/* Action Buttons */}
-      <div className="flex justify-end space-x-3 pt-4 border-t border-border">
+      <div className="flex items-center justify-between gap-3 pt-4 border-t border-border">
         <Button 
           type="button" 
           variant="outline" 
@@ -583,23 +624,58 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
         >
           Cancel
         </Button>
-        <Button 
-          type="submit" 
-          disabled={loading || !youtubeUrl || !title}
-          className="bg-foreground text-background hover:bg-foreground/90"
-        >
-          {loading ? (
-            <span className="flex items-center gap-2">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              {initialData ? 'Updating...' : 'Submitting...'}
-            </span>
-          ) : (
-            <span className="flex items-center gap-2">
-              <Film className="h-4 w-4" />
-              {initialData ? 'Update Film' : (isAdmin ? "Add Film" : "Submit Film")}
-            </span>
+        <div className="flex items-center gap-2">
+          {activeSection !== 'basic' && (
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => {
+                if (activeSection === 'credits') {
+                  setActiveSection('details');
+                } else {
+                  setActiveSection('basic');
+                }
+              }}
+              disabled={loading}
+            >
+              Back
+            </Button>
           )}
-        </Button>
+          {activeSection !== 'credits' ? (
+            <Button
+              type="button"
+              onClick={() => {
+                if (activeSection === 'basic') {
+                  setActiveSection('details');
+                } else {
+                  setActiveSection('credits');
+                }
+              }}
+              disabled={loading}
+              className="bg-foreground text-background hover:bg-foreground/90"
+            >
+              Next
+            </Button>
+          ) : (
+            <Button 
+              type="submit" 
+              disabled={loading || !youtubeUrl || !title}
+              className="bg-foreground text-background hover:bg-foreground/90"
+            >
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  {initialData ? 'Updating...' : 'Submitting...'}
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <Film className="h-4 w-4" />
+                  {initialData ? 'Update Film' : (isAdmin ? "Add Film" : "Submit Film")}
+                </span>
+              )}
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Info Note */}
