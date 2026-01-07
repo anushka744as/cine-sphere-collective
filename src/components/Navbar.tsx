@@ -1,15 +1,17 @@
 import { useState, useEffect } from "react";
-import { User, LogOut, LayoutDashboard, Menu, X } from "lucide-react";
+import { User, LogOut, LayoutDashboard, Menu, X, Bookmark, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { signOut } from "@/lib/auth";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
+import { useWatchlist } from "@/hooks/useWatchlist";
 
 const Navbar = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { watchlist } = useWatchlist();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -87,6 +89,22 @@ const Navbar = () => {
 
           {/* Desktop Right side actions */}
           <div className="hidden lg:flex items-center space-x-4">
+            {/* Watchlist Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/watchlist")}
+              className="text-foreground opacity-60 hover:opacity-100 relative"
+            >
+              <Bookmark className="h-4 w-4 mr-2" />
+              Watchlist
+              {watchlist.length > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-foreground text-background text-xs rounded-full flex items-center justify-center">
+                  {watchlist.length}
+                </span>
+              )}
+            </Button>
+
             {user ? (
               <>
                 <Button
@@ -161,6 +179,18 @@ const Navbar = () => {
                 }`}
             >
               Films
+            </button>
+            <button
+              onClick={() => handleNavigation('/watchlist')}
+              className={`block w-full text-left text-2xl py-3 flex items-center gap-3 ${isActive('/watchlist') ? 'opacity-100' : 'opacity-60'
+                }`}
+            >
+              Watchlist
+              {watchlist.length > 0 && (
+                <span className="text-sm bg-foreground text-background px-2 py-0.5 rounded-full">
+                  {watchlist.length}
+                </span>
+              )}
             </button>
             <button
               onClick={() => handleNavigation('/about')}

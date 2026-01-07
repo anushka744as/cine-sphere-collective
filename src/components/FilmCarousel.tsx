@@ -1,6 +1,8 @@
 import { useRef, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Bookmark, BookmarkCheck } from "lucide-react";
+import { motion } from "framer-motion";
 import { Film } from "@/data/dummyFilms";
+import { useWatchlist } from "@/hooks/useWatchlist";
 
 interface FilmCarouselProps {
   films: Film[];
@@ -13,6 +15,7 @@ const FilmCarousel = ({ films, onFilmClick, title, subtitle }: FilmCarouselProps
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const { addToWatchlist, removeFromWatchlist, isInWatchlist } = useWatchlist();
 
   const checkScroll = () => {
     if (scrollRef.current) {
@@ -29,6 +32,15 @@ const FilmCarousel = ({ films, onFilmClick, title, subtitle }: FilmCarouselProps
         left: direction === "left" ? -scrollAmount : scrollAmount,
         behavior: "smooth",
       });
+    }
+  };
+
+  const handleWatchlistToggle = (e: React.MouseEvent, film: Film) => {
+    e.stopPropagation();
+    if (isInWatchlist(film.id)) {
+      removeFromWatchlist(film.id);
+    } else {
+      addToWatchlist(film);
     }
   };
 
@@ -82,30 +94,53 @@ const FilmCarousel = ({ films, onFilmClick, title, subtitle }: FilmCarouselProps
         className="flex gap-6 overflow-x-auto scrollbar-hide px-6 lg:px-12 pb-4"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
-        {films.map((film) => (
-          <div
-            key={film.id}
-            className="group cursor-pointer flex-shrink-0 w-[300px] md:w-[400px]"
-            onClick={() => onFilmClick(film)}
-          >
-            <div className="relative aspect-[16/10] overflow-hidden mb-4">
-              <img
-                src={film.thumbnail}
-                alt={film.title}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-background/0 group-hover:bg-background/10 transition-colors duration-300" />
-            </div>
-            <div className="space-y-1">
-              <h3 className="text-base font-medium group-hover:opacity-70 transition-opacity">
-                {film.title}
-              </h3>
-              <p className="text-sm text-foreground/50">
-                {film.director} • {film.year}
-              </p>
-            </div>
-          </div>
-        ))}
+        {films.map((film, index) => {
+          const inWatchlist = isInWatchlist(film.id);
+          return (
+            <motion.div
+              key={film.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+              className="group cursor-pointer flex-shrink-0 w-[300px] md:w-[400px] relative"
+              onClick={() => onFilmClick(film)}
+            >
+              <div className="relative aspect-[16/10] overflow-hidden mb-4">
+                <img
+                  src={film.thumbnail}
+                  alt={film.title}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-background/0 group-hover:bg-background/10 transition-colors duration-300" />
+                
+                {/* Watchlist Button */}
+                <button
+                  onClick={(e) => handleWatchlistToggle(e, film)}
+                  className={`absolute top-3 right-3 p-2 rounded-full transition-all ${
+                    inWatchlist
+                      ? 'bg-foreground text-background'
+                      : 'bg-background/50 backdrop-blur-sm text-foreground opacity-0 group-hover:opacity-100'
+                  }`}
+                  title={inWatchlist ? "Remove from watchlist" : "Add to watchlist"}
+                >
+                  {inWatchlist ? (
+                    <BookmarkCheck className="h-4 w-4" />
+                  ) : (
+                    <Bookmark className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-base font-medium group-hover:opacity-70 transition-opacity">
+                  {film.title}
+                </h3>
+                <p className="text-sm text-foreground/50">
+                  {film.director} • {film.year}
+                </p>
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
     </section>
   );
