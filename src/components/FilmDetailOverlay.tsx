@@ -1,7 +1,10 @@
 import { useState } from "react";
-import { X, Play, ArrowLeft } from "lucide-react";
+import { X, Play, ArrowLeft, Bookmark, BookmarkCheck } from "lucide-react";
+import { motion } from "framer-motion";
 import { Film, dummyFilms } from "@/data/dummyFilms";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useWatchlist } from "@/hooks/useWatchlist";
+import { AwardCard } from "@/components/AwardCard";
 
 interface FilmDetailOverlayProps {
   film: Film;
@@ -11,6 +14,8 @@ interface FilmDetailOverlayProps {
 
 const FilmDetailOverlay = ({ film, onClose, onSelectFilm }: FilmDetailOverlayProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
+  const { addToWatchlist, removeFromWatchlist, isInWatchlist } = useWatchlist();
+  const inWatchlist = isInWatchlist(film.id);
 
   // Get related films (excluding current film)
   const relatedFilms = dummyFilms.filter(f => f.id !== film.id).slice(0, 8);
@@ -22,8 +27,21 @@ const FilmDetailOverlay = ({ film, onClose, onSelectFilm }: FilmDetailOverlayPro
     }
   };
 
+  const handleWatchlistToggle = () => {
+    if (inWatchlist) {
+      removeFromWatchlist(film.id);
+    } else {
+      addToWatchlist(film);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-50 bg-background overflow-hidden">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 bg-background overflow-hidden"
+    >
       {/* Close button - fixed position with proper z-index */}
       <button
         onClick={onClose}
@@ -31,6 +49,28 @@ const FilmDetailOverlay = ({ film, onClose, onSelectFilm }: FilmDetailOverlayPro
       >
         <ArrowLeft className="h-5 w-5" />
         <span className="text-sm uppercase tracking-widest">Back</span>
+      </button>
+
+      {/* Watchlist button */}
+      <button
+        onClick={handleWatchlistToggle}
+        className={`fixed top-6 right-6 z-[60] flex items-center gap-2 transition-colors px-4 py-2 rounded-full ${
+          inWatchlist
+            ? "bg-foreground text-background"
+            : "bg-background/50 backdrop-blur-sm text-foreground/70 hover:text-foreground"
+        }`}
+      >
+        {inWatchlist ? (
+          <>
+            <BookmarkCheck className="h-5 w-5" />
+            <span className="text-sm">In Watchlist</span>
+          </>
+        ) : (
+          <>
+            <Bookmark className="h-5 w-5" />
+            <span className="text-sm">Add to Watchlist</span>
+          </>
+        )}
       </button>
 
       {isPlaying ? (
@@ -76,7 +116,7 @@ const FilmDetailOverlay = ({ film, onClose, onSelectFilm }: FilmDetailOverlayPro
                     </div>
                   </button>
 
-                  {/* New Content Overlay (Visible only when not playing) */}
+                  {/* Content Overlay */}
                   <div className="absolute inset-0 flex items-center justify-start p-8 md:p-16 z-10 pointer-events-none">
                     <div className="max-w-xl text-left space-y-6">
                       <div className="space-y-2">
@@ -113,7 +153,7 @@ const FilmDetailOverlay = ({ film, onClose, onSelectFilm }: FilmDetailOverlayPro
 
                 {/* Content Section */}
                 <div className="px-6 lg:px-12 pt-8">
-                  {/* Title Section - with proper top margin */}
+                  {/* Title Section */}
                   <div className="mb-8">
                     <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 font-display">
                       {film.title}
@@ -157,18 +197,15 @@ const FilmDetailOverlay = ({ film, onClose, onSelectFilm }: FilmDetailOverlayPro
                     </div>
                   </div>
 
-                  {/* Awards Section */}
+                  {/* Awards Section with Wikipedia Integration */}
                   {film.awards && film.awards.length > 0 && (
                     <div className="mb-10">
                       <p className="text-xs uppercase tracking-widest text-foreground/50 mb-4">
                         Awards & Recognition
                       </p>
-                      <div className="space-y-2">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {film.awards.map((award, index) => (
-                          <div key={index} className="flex items-center gap-3">
-                            <div className="w-1.5 h-1.5 rounded-full bg-foreground/50" />
-                            <span className="text-foreground/70">{award}</span>
-                          </div>
+                          <AwardCard key={index} awardName={award} />
                         ))}
                       </div>
                     </div>
@@ -225,7 +262,7 @@ const FilmDetailOverlay = ({ film, onClose, onSelectFilm }: FilmDetailOverlayPro
                     </div>
                   </div>
 
-                  {/* Additional Info Paragraph */}
+                  {/* Additional Info */}
                   <div className="mb-10 max-w-3xl">
                     <p className="text-foreground/60 leading-relaxed">
                       This film resonates because it reflects life as it is: honest, emotional, and deeply human.
@@ -278,7 +315,7 @@ const FilmDetailOverlay = ({ film, onClose, onSelectFilm }: FilmDetailOverlayPro
           </div>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 };
 
