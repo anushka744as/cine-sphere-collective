@@ -30,13 +30,20 @@ interface ExtendedMovie {
   is_featured?: boolean | null;
 }
 
-export const useFilms = () => {
+export const useFilms = (showAllForAdmin = false) => {
   return useQuery({
-    queryKey: ["films"],
+    queryKey: ["films", showAllForAdmin],
     queryFn: async (): Promise<Film[]> => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("movies")
         .select("*");
+      
+      // Only show approved films on public pages
+      if (!showAllForAdmin) {
+        query = query.eq("status", "approved");
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         throw error;
