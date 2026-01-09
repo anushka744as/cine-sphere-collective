@@ -41,8 +41,17 @@ interface WatchlistEntry {
 
 export const WatchlistProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
-  const [watchlist, setWatchlist] = useState<Film[]>(getSavedWatchlist);
+  const [watchlist, setWatchlist] = useState<Film[]>([]);
   const [entryIds, setEntryIds] = useState<Record<string, string>>({});
+  const [initialized, setInitialized] = useState(false);
+
+  // Initialize from localStorage on mount (client-side only)
+  useEffect(() => {
+    if (!initialized && !user) {
+      setWatchlist(getSavedWatchlist());
+      setInitialized(true);
+    }
+  }, [initialized, user]);
 
   useEffect(() => {
     if (user) {
