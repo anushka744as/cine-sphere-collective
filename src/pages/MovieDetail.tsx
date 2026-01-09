@@ -40,7 +40,7 @@ const MovieDetail = () => {
           .select('username')
           .eq('id', movieData.uploaded_by)
           .single();
-        
+
         setUploaderProfile(profileData);
       }
     } catch (error) {
@@ -60,7 +60,8 @@ const MovieDetail = () => {
     }
   };
 
-  const getYouTubeEmbedUrl = (url: string) => {
+  const getYouTubeEmbedUrl = (url: string, videoId?: string) => {
+    if (videoId) return `https://www.youtube.com/embed/${videoId}`;
     const videoIdMatch = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
     return videoIdMatch ? `https://www.youtube.com/embed/${videoIdMatch[1]}` : null;
   };
@@ -94,7 +95,7 @@ const MovieDetail = () => {
     );
   }
 
-  const embedUrl = getYouTubeEmbedUrl(movie.youtube_url);
+  const embedUrl = getYouTubeEmbedUrl(movie.youtube_url, movie.youtube_video_id);
   const hasSupplementalDetails =
     (movie.cast_members?.length ?? 0) > 0 ||
     (movie.awards?.length ?? 0) > 0 ||
@@ -103,10 +104,10 @@ const MovieDetail = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      
+
       <main className="container mx-auto px-4 pt-24 pb-16">
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           onClick={() => navigate('/movies')}
           className="mb-6"
         >
@@ -176,16 +177,6 @@ const MovieDetail = () => {
                   </div>
                 )}
 
-                {movie.tags && movie.tags.length > 0 && (
-                  <div className="mt-4">
-                    <h2 className="text-xl font-semibold mb-2">Tags</h2>
-                    <div className="flex flex-wrap gap-2">
-                      {movie.tags.map((tag: string, index: number) => (
-                        <Badge key={index} variant="outline">{tag}</Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </CardContent>
             </Card>
           </div>
@@ -235,12 +226,14 @@ const MovieDetail = () => {
                       <dd className="font-medium">{movie.director}</dd>
                     </div>
                   )}
-                  {movie.cinematographer && (
-                    <div>
-                      <dt className="text-sm text-muted-foreground">Cinematographer</dt>
-                      <dd className="font-medium">{movie.cinematographer}</dd>
-                    </div>
-                  )}
+                  <div>
+                    <dt className="text-sm text-muted-foreground">Cinematographer</dt>
+                    <dd className="font-medium">
+                      {Array.isArray(movie.cinematographer)
+                        ? movie.cinematographer.join(', ')
+                        : movie.cinematographer}
+                    </dd>
+                  </div>
                   <div>
                     <dt className="text-sm text-muted-foreground">Status</dt>
                     <dd className="font-medium capitalize">{movie.status}</dd>

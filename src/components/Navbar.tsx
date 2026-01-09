@@ -8,7 +8,12 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { useWatchlist } from "@/hooks/useWatchlist";
 
-const Navbar = () => {
+interface NavbarProps {
+  onSearchToggle?: () => void;
+  isSearchOpen?: boolean;
+}
+
+const Navbar = ({ onSearchToggle, isSearchOpen }: NavbarProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -89,6 +94,22 @@ const Navbar = () => {
 
           {/* Desktop Right side actions */}
           <div className="hidden lg:flex items-center space-x-4">
+            {/* Search Button */}
+            {onSearchToggle && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onSearchToggle}
+                className="text-foreground opacity-60 hover:opacity-100 mr-2"
+              >
+                {isSearchOpen ? (
+                  <X className="h-4 w-4" />
+                ) : (
+                  <Search className="h-4 w-4" />
+                )}
+              </Button>
+            )}
+
             {/* Watchlist Button */}
             <Button
               variant="ghost"
@@ -168,18 +189,33 @@ const Navbar = () => {
           </div>
 
           {/* Mobile Menu Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="lg:hidden z-50"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            {isMobileMenuOpen ? (
-              <X className="h-6 w-6" />
-            ) : (
-              <Menu className="h-6 w-6" />
+          <div className="flex lg:hidden items-center space-x-2 z-50">
+            {onSearchToggle && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onSearchToggle}
+                className="text-foreground/70 hover:text-foreground"
+              >
+                {isSearchOpen ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <Search className="h-5 w-5" />
+                )}
+              </Button>
             )}
-          </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </Button>
+          </div>
         </div>
       </div>
 

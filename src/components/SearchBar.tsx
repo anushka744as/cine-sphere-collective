@@ -36,7 +36,7 @@ export const SearchBar = ({ films, onSearchResults, onClose, isOpen = true }: Se
         film.title.toLowerCase().includes(query.toLowerCase()) ||
         film.director.toLowerCase().includes(query.toLowerCase()) ||
         film.description.toLowerCase().includes(query.toLowerCase()) ||
-        film.cast.some((c) => c.toLowerCase().includes(query.toLowerCase()));
+        film.cast?.some((c) => c.toLowerCase().includes(query.toLowerCase()));
 
       const matchesCategory =
         selectedCategory === 'All' || film.category === selectedCategory;

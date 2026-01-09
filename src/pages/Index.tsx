@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -7,16 +7,24 @@ import FilmGrid from "@/components/FilmGrid";
 import FilmCarousel from "@/components/FilmCarousel";
 import FilmDetailOverlay from "@/components/FilmDetailOverlay";
 import { SearchBar } from "@/components/SearchBar";
-import { dummyFilms, Film } from "@/data/dummyFilms";
+import { useFilms } from "@/hooks/useFilms";
+import { Film } from "@/data/dummyFilms";
 import { ArrowRight, Search, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const navigate = useNavigate();
+  const { data: films = [], isLoading, error } = useFilms();
   const [selectedFilm, setSelectedFilm] = useState<Film | null>(null);
   const [showSearch, setShowSearch] = useState(false);
-  const [searchResults, setSearchResults] = useState<Film[]>(dummyFilms);
+  const [searchResults, setSearchResults] = useState<Film[]>([]);
+
+  useEffect(() => {
+    if (searchResults.length === 0 && films.length > 0 && !showSearch) {
+      setSearchResults(films);
+    }
+  }, [films, searchResults.length, showSearch]);
 
   const handleFilmClick = (film: Film) => {
     setSelectedFilm(film);
@@ -31,9 +39,25 @@ const Index = () => {
   }, []);
 
   // Split films into sections
-  const featuredFilms = dummyFilms.slice(0, 6);
-  const newReleases = dummyFilms.slice(3, 9);
-  const curatedPicks = dummyFilms.slice(6, 12);
+  const featuredFilms = films.slice(0, 6);
+  const newReleases = films.slice(3, 9);
+  const curatedPicks = films.slice(6, 12);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-foreground"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-foreground">Error loading films. Please try again later.</div>
+      </div>
+    )
+  }
 
   return (
     <motion.div
@@ -42,15 +66,10 @@ const Index = () => {
       exit={{ opacity: 0 }}
       className="min-h-screen bg-background"
     >
-      <Navbar />
-
-      {/* Search Toggle Button */}
-      <button
-        onClick={() => setShowSearch(!showSearch)}
-        className="fixed top-6 right-24 z-50 p-2 text-foreground/70 hover:text-foreground transition-colors"
-      >
-        {showSearch ? <X className="h-5 w-5" /> : <Search className="h-5 w-5" />}
-      </button>
+      <Navbar
+        onSearchToggle={() => setShowSearch(!showSearch)}
+        isSearchOpen={showSearch}
+      />
 
       {/* Search Bar */}
       <AnimatePresence>
@@ -62,7 +81,7 @@ const Index = () => {
             className="fixed top-20 left-0 right-0 z-40"
           >
             <SearchBar
-              films={dummyFilms}
+              films={films}
               onSearchResults={handleSearchResults}
               onClose={() => setShowSearch(false)}
             />
@@ -70,7 +89,7 @@ const Index = () => {
         )}
       </AnimatePresence>
 
-      {showSearch && searchResults.length < dummyFilms.length ? (
+      {showSearch && searchResults.length < films.length ? (
         /* Search Results View */
         <div className="pt-48 pb-24 px-6 lg:px-12 container mx-auto">
           <p className="text-sm text-foreground/50 mb-6">
@@ -104,7 +123,7 @@ const Index = () => {
         /* Normal View */
         <>
           {/* Hero Carousel */}
-          <HeroCarousel onFilmClick={handleFilmClick} />
+          <HeroCarousel onFilmClick={handleFilmClick} films={films} />
 
           {/* Featured Films Grid */}
           <FilmGrid

@@ -1,34 +1,39 @@
 import { useState, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { dummyFilms, Film } from "@/data/dummyFilms";
-
+import { Film } from "@/data/dummyFilms";
 interface HeroCarouselProps {
   onFilmClick: (film: Film) => void;
+  films: Film[];
 }
 
-const HeroCarousel = ({ onFilmClick }: HeroCarouselProps) => {
+const HeroCarousel = ({ onFilmClick, films }: HeroCarouselProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const heroFilms = dummyFilms.slice(0, 5);
+
+  // Use first 5 films for hero
+  const heroFilms = films.slice(0, 5);
 
   const goToNext = useCallback(() => {
-    if (isTransitioning) return;
+    if (isTransitioning || heroFilms.length === 0) return;
     setIsTransitioning(true);
     setCurrentIndex((prev) => (prev + 1) % heroFilms.length);
     setTimeout(() => setIsTransitioning(false), 600);
   }, [heroFilms.length, isTransitioning]);
 
   const goToPrev = useCallback(() => {
-    if (isTransitioning) return;
+    if (isTransitioning || heroFilms.length === 0) return;
     setIsTransitioning(true);
     setCurrentIndex((prev) => (prev - 1 + heroFilms.length) % heroFilms.length);
     setTimeout(() => setIsTransitioning(false), 600);
   }, [heroFilms.length, isTransitioning]);
 
   useEffect(() => {
+    if (heroFilms.length === 0) return;
     const interval = setInterval(goToNext, 6000);
     return () => clearInterval(interval);
-  }, [goToNext]);
+  }, [goToNext, heroFilms.length]);
+
+  if (heroFilms.length === 0) return null;
 
   const currentFilm = heroFilms[currentIndex];
 
@@ -38,9 +43,8 @@ const HeroCarousel = ({ onFilmClick }: HeroCarouselProps) => {
       {heroFilms.map((film, index) => (
         <div
           key={film.id}
-          className={`absolute inset-0 transition-opacity duration-700 ${
-            index === currentIndex ? "opacity-100" : "opacity-0"
-          }`}
+          className={`absolute inset-0 transition-opacity duration-700 ${index === currentIndex ? "opacity-100" : "opacity-0"
+            }`}
         >
           <img
             src={film.thumbnail}
@@ -63,18 +67,16 @@ const HeroCarousel = ({ onFilmClick }: HeroCarouselProps) => {
 
             {/* Title */}
             <h1
-              className={`text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-none transition-all duration-500 ${
-                isTransitioning ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0"
-              }`}
+              className={`text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-none transition-all duration-500 ${isTransitioning ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0"
+                }`}
             >
               {currentFilm.title}
             </h1>
 
             {/* Director */}
             <p
-              className={`text-lg md:text-xl text-foreground/70 mb-8 transition-all duration-500 delay-100 ${
-                isTransitioning ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0"
-              }`}
+              className={`text-lg md:text-xl text-foreground/70 mb-8 transition-all duration-500 delay-100 ${isTransitioning ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0"
+                }`}
             >
               Directed by {currentFilm.director}
             </p>
@@ -82,9 +84,8 @@ const HeroCarousel = ({ onFilmClick }: HeroCarouselProps) => {
             {/* CTA */}
             <button
               onClick={() => onFilmClick(currentFilm)}
-              className={`group inline-flex items-center gap-3 text-foreground border border-foreground/30 px-8 py-4 hover:bg-foreground hover:text-background transition-all duration-300 ${
-                isTransitioning ? "opacity-0" : "opacity-100"
-              }`}
+              className={`group inline-flex items-center gap-3 text-foreground border border-foreground/30 px-8 py-4 hover:bg-foreground hover:text-background transition-all duration-300 ${isTransitioning ? "opacity-0" : "opacity-100"
+                }`}
             >
               <span className="text-sm uppercase tracking-widest">Watch Now</span>
             </button>

@@ -3,19 +3,22 @@ export interface Film {
   title: string;
   director: string;
   directorBio: string;
-  directorImage: string;
+  directorImage?: string;
   year: number;
   duration: string;
   category: string;
+  genre?: string;
   description: string;
   thumbnail: string;
   videoUrl: string;
+  youtubeVideoId?: string;
   characteristics: string[];
   awards?: string[];
   cast?: string[];
-  cinematographer?: string;
+  cinematographer?: string[];
   country?: string;
   language?: string;
+  isFeatured?: boolean;
 }
 
 export const dummyFilms: Film[] = [
@@ -34,7 +37,7 @@ export const dummyFilms: Film[] = [
     characteristics: ["PSYCHOLOGICAL", "DRAMA", "INTIMATE", "PROVOCATIVE"],
     awards: ["Sundance Film Festival - Official Selection", "SXSW - Audience Award Nominee"],
     cast: ["Margaret Qualley", "Christopher Abbott"],
-    cinematographer: "Ludovica Isidori",
+    cinematographer: ["Ludovica Isidori"],
     country: "United States",
     language: "English"
   },
@@ -53,7 +56,7 @@ export const dummyFilms: Film[] = [
     characteristics: ["BIOGRAPHY", "EPIC", "POLITICAL", "ARTISTIC"],
     awards: ["Cannes Film Festival - In Competition", "European Film Award Nominee"],
     cast: ["Ben Whishaw", "Viktoria Miroshnichenko"],
-    cinematographer: "Roman Vasyanov",
+    cinematographer: ["Roman Vasyanov"],
     country: "France / Italy",
     language: "English / Russian"
   },
@@ -72,7 +75,7 @@ export const dummyFilms: Film[] = [
     characteristics: ["ROMANTIC", "FAIRY TALE", "POST-WAR", "POETIC"],
     awards: ["Cannes Film Festival - Un Certain Regard", "David di Donatello Award"],
     cast: ["Raphaël Thiéry", "Juliette Jouan"],
-    cinematographer: "Marco Graziaplena",
+    cinematographer: ["Marco Graziaplena"],
     country: "France / Italy",
     language: "French"
   },
@@ -91,7 +94,7 @@ export const dummyFilms: Film[] = [
     characteristics: ["PERIOD", "RELATIONSHIPS", "INTIMATE", "LYRICAL"],
     awards: ["Venice Film Festival - Queer Lion", "Berlin Film Festival Nominee"],
     cast: ["Katherine Waterston", "Vanessa Kirby", "Casey Affleck"],
-    cinematographer: "André Chemetoff",
+    cinematographer: ["André Chemetoff"],
     country: "United States",
     language: "English"
   },
@@ -110,7 +113,7 @@ export const dummyFilms: Film[] = [
     characteristics: ["SURVIVAL", "WAR", "THRILLER", "HISTORICAL"],
     awards: ["German Film Award - Best Picture Nominee", "Jerusalem Film Festival - Best Actor"],
     cast: ["Nahuel Pérez Biscayart", "Lars Eidinger"],
-    cinematographer: "Vladislav Opelyants",
+    cinematographer: ["Vladislav Opelyants"],
     country: "Germany / Russia",
     language: "German / Farsi"
   },
@@ -129,7 +132,7 @@ export const dummyFilms: Film[] = [
     characteristics: ["PORTRAITS", "HANDHELD", "RELATIONSHIPS", "DOCUMENTARY"],
     awards: ["Hot Docs - World Premiere", "IDFA - Special Mention"],
     cast: ["Documentary subjects"],
-    cinematographer: "Goh Iromoto",
+    cinematographer: ["Goh Iromoto"],
     country: "Canada",
     language: "English / Japanese"
   },
@@ -148,7 +151,7 @@ export const dummyFilms: Film[] = [
     characteristics: ["MEMORY", "FATHER-DAUGHTER", "NOSTALGIC", "MELANCHOLIC"],
     awards: ["Cannes Film Festival - Critics' Week Grand Prize", "BAFTA - Outstanding British Film", "Independent Spirit Award - Best First Feature"],
     cast: ["Paul Mescal", "Frankie Corio"],
-    cinematographer: "Gregory Oke",
+    cinematographer: ["Gregory Oke"],
     country: "United Kingdom / United States",
     language: "English"
   },
@@ -167,7 +170,7 @@ export const dummyFilms: Film[] = [
     characteristics: ["ROMANCE", "FATE", "CONNECTION", "BITTERSWEET"],
     awards: ["Sundance Film Festival - Premiere", "Golden Globe Nominee", "Academy Award Nominee - Best Picture"],
     cast: ["Greta Lee", "Teo Yoo", "John Magaro"],
-    cinematographer: "Shabier Kirchner",
+    cinematographer: ["Shabier Kirchner"],
     country: "United States / South Korea",
     language: "English / Korean"
   },
@@ -186,7 +189,7 @@ export const dummyFilms: Film[] = [
     characteristics: ["SUPERNATURAL", "GRIEF", "LOVE", "HAUNTING"],
     awards: ["BFI London Film Festival - Opening Night", "BAFTA Nominee", "Critics Choice Award Nominee"],
     cast: ["Andrew Scott", "Paul Mescal", "Jamie Bell", "Claire Foy"],
-    cinematographer: "Jamie D. Ramsay",
+    cinematographer: ["Jamie D. Ramsay"],
     country: "United Kingdom",
     language: "English"
   },
@@ -205,7 +208,7 @@ export const dummyFilms: Film[] = [
     characteristics: ["COURTROOM", "MYSTERY", "PSYCHOLOGICAL", "INTENSE"],
     awards: ["Cannes Film Festival - Palme d'Or", "Academy Award - Best Original Screenplay", "Golden Globe - Best Foreign Language Film"],
     cast: ["Sandra Hüller", "Swann Arlaud", "Milo Machado-Graner"],
-    cinematographer: "Simon Beaufils",
+    cinematographer: ["Simon Beaufils"],
     country: "France",
     language: "French / English / German"
   },
@@ -224,7 +227,7 @@ export const dummyFilms: Film[] = [
     characteristics: ["HISTORICAL", "HORROR", "ARTISTIC", "DISTURBING"],
     awards: ["Cannes Film Festival - Grand Prix", "Academy Award - Best International Feature", "BAFTA - Best British Film"],
     cast: ["Christian Friedel", "Sandra Hüller"],
-    cinematographer: "Łukasz Żal",
+    cinematographer: ["Łukasz Żal"],
     country: "United Kingdom / Poland",
     language: "German / Polish"
   },
@@ -243,7 +246,7 @@ export const dummyFilms: Film[] = [
     characteristics: ["SURREAL", "FEMINIST", "DARK COMEDY", "VISUAL"],
     awards: ["Venice Film Festival - Golden Lion", "Academy Award - Best Actress", "Golden Globe - Best Motion Picture Musical/Comedy"],
     cast: ["Emma Stone", "Mark Ruffalo", "Willem Dafoe"],
-    cinematographer: "Robbie Ryan",
+    cinematographer: ["Robbie Ryan"],
     country: "United Kingdom / Ireland / United States",
     language: "English"
   }

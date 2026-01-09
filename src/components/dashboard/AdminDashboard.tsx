@@ -13,7 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
   const [movies, setMovies] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -40,7 +40,7 @@ const AdminDashboard = () => {
       console.error(error);
     } else {
       setMovies(data || []);
-      
+
       // Fetch uploader profiles
       const uploaderIds = [...new Set(data?.map(m => m.uploaded_by).filter(Boolean))];
       if (uploaderIds.length > 0) {
@@ -48,7 +48,7 @@ const AdminDashboard = () => {
           .from('profiles')
           .select('id, username')
           .in('id', uploaderIds);
-        
+
         if (profiles) {
           const uploaderMap: Record<string, string> = {};
           profiles.forEach(p => {
@@ -63,7 +63,7 @@ const AdminDashboard = () => {
   const fetchUsers = async () => {
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, username, created_at')
+      .select('id, username, created_at, role')
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -153,6 +153,49 @@ const AdminDashboard = () => {
     setLoading(false);
   };
 
+  const handleToggleFeatured = async (id: string, currentStatus: boolean) => {
+    setLoading(true);
+    const { error } = await supabase
+      .from('movies')
+      .update({ is_featured: !currentStatus })
+      .eq('id', id);
+
+    if (error) {
+      toast.error("Failed to update featured status");
+    } else {
+      toast.success(`Film ${!currentStatus ? 'added to' : 'removed from'} featured!`);
+      await fetchMovies();
+    }
+    setLoading(false);
+  };
+
+  const handleRoleToggle = async (targetUser: any) => {
+    if (targetUser.id === user?.id) {
+      toast.error("You cannot change your own role");
+      return;
+    }
+
+    const newRole = targetUser.role === 'admin' ? 'user' : 'admin';
+    if (!confirm(`Are you sure you want to change "${targetUser.username}"'s role to ${newRole}?`)) {
+      return;
+    }
+
+    setLoading(true);
+    const { error } = await supabase
+      .from('profiles')
+      .update({ role: newRole })
+      .eq('id', targetUser.id);
+
+    if (error) {
+      toast.error("Failed to update user role");
+      console.error(error);
+    } else {
+      toast.success(`User role updated to ${newRole}!`);
+      await fetchUsers();
+    }
+    setLoading(false);
+  };
+
   const renderFilmCard = (movie: any) => (
     <div
       key={movie.id}
@@ -162,8 +205,8 @@ const AdminDashboard = () => {
       <div className="flex-shrink-0">
         <div className="relative w-full sm:w-40 h-32 sm:h-24 rounded-md overflow-hidden bg-muted">
           {movie.thumbnail_url ? (
-            <img 
-              src={movie.thumbnail_url} 
+            <img
+              src={movie.thumbnail_url}
               alt={movie.title}
               className="w-full h-full object-cover"
               onError={(e) => {
@@ -178,11 +221,11 @@ const AdminDashboard = () => {
           {/* Status Badge */}
           <div className="absolute top-2 right-2">
             <Badge className={
-              movie.status === 'approved' 
-                ? 'bg-foreground text-background' 
+              movie.status === 'approved'
+                ? 'bg-foreground text-background'
                 : movie.status === 'pending'
-                ? 'bg-foreground/50'
-                : 'bg-foreground/30'
+                  ? 'bg-foreground/50'
+                  : 'bg-foreground/30'
             }>
               {movie.status}
             </Badge>
@@ -214,8 +257,8 @@ const AdminDashboard = () => {
       <div className="flex sm:flex-col items-center justify-end gap-2 flex-shrink-0">
         {movie.status === 'pending' && (
           <>
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="icon"
               onClick={() => handleStatusChange(movie.id, 'approved')}
               title="Approve"
@@ -223,8 +266,8 @@ const AdminDashboard = () => {
             >
               <Check className="h-4 w-4" />
             </Button>
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="icon"
               onClick={() => handleStatusChange(movie.id, 'rejected')}
               title="Reject"
@@ -234,16 +277,26 @@ const AdminDashboard = () => {
             </Button>
           </>
         )}
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => handleToggleFeatured(movie.id, movie.is_featured)}
+          title={movie.is_featured ? "Remove from Featured" : "Add to Featured"}
+          className={movie.is_featured ? "text-yellow-500 fill-yellow-500" : "text-card"}
+          disabled={loading}
+        >
+          <Star className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
           size="icon"
           onClick={() => navigate(`/movie/${movie.id}`)}
           title="View"
         >
           <Eye className="h-4 w-4" />
         </Button>
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           size="icon"
           onClick={() => handleEdit(movie)}
           title="Edit"
@@ -268,9 +321,14 @@ const AdminDashboard = () => {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl sm:text-4xl font-bold mb-2">Admin Dashboard</h1>
-          <p className="text-foreground/50 text-sm sm:text-base">Manage films, users, and content</p>
+          <div className="flex items-center gap-2">
+            <p className="text-foreground/50 text-sm sm:text-base">Manage films, users, and content</p>
+            <Badge variant="outline" className="text-xs">
+              Logged in as: {userRole}
+            </Badge>
+          </div>
         </div>
-        
+
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
             <Button className="bg-foreground text-background hover:bg-foreground/90">
@@ -283,7 +341,7 @@ const AdminDashboard = () => {
               <DialogTitle>Add New Film</DialogTitle>
               <DialogDescription>Fill in the film details below (approved automatically)</DialogDescription>
             </DialogHeader>
-            
+
             <MovieSubmitForm
               userId={user?.id}
               isAdmin={true}
@@ -342,20 +400,39 @@ const AdminDashboard = () => {
                     <div
                       key={u.id}
                       onClick={() => handleUserClick(u)}
-                      className={`p-4 rounded-lg border border-border cursor-pointer transition-colors ${
-                        selectedUser?.id === u.id ? 'bg-foreground/10 border-foreground/30' : 'hover:bg-accent/5'
-                      }`}
+                      className={`p-4 rounded-lg border border-border cursor-pointer transition-colors ${selectedUser?.id === u.id ? 'bg-foreground/10 border-foreground/30' : 'hover:bg-accent/5'
+                        }`}
                     >
                       <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-semibold">{u.username || 'Unknown User'}</p>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <p className="font-semibold">{u.username || 'Unknown User'}</p>
+                            <Badge variant={u.role === 'admin' ? 'default' : 'secondary'} className="text-[10px] h-4 px-1">
+                              {u.role}
+                            </Badge>
+                          </div>
                           <p className="text-xs text-foreground/40">
                             Joined {new Date(u.created_at).toLocaleDateString()}
                           </p>
                         </div>
-                        <Badge variant="secondary" className="bg-card">
-                          {getUserFilmCount(u.id)} {getUserFilmCount(u.id) === 1 ? 'film' : 'films'}
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                          {u.id !== user?.id && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRoleToggle(u);
+                              }}
+                              className="text-[10px] h-7 px-2"
+                            >
+                              Toggle Role
+                            </Button>
+                          )}
+                          <Badge variant="secondary" className="bg-card">
+                            {getUserFilmCount(u.id)} {getUserFilmCount(u.id) === 1 ? 'film' : 'films'}
+                          </Badge>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -404,7 +481,7 @@ const AdminDashboard = () => {
             <DialogTitle>Edit Film</DialogTitle>
             <DialogDescription>Update film details</DialogDescription>
           </DialogHeader>
-          
+
           {editMovie && (
             <MovieSubmitForm
               userId={user?.id}

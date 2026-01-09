@@ -3,7 +3,9 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FilmGrid from "@/components/FilmGrid";
 import FilmDetailOverlay from "@/components/FilmDetailOverlay";
-import { dummyFilms, Film } from "@/data/dummyFilms";
+import { useRef } from "react";
+import { useFilms } from "@/hooks/useFilms";
+import { Film } from "@/data/dummyFilms";
 import { Button } from "@/components/ui/button";
 
 const categories = [
@@ -19,6 +21,7 @@ const categories = [
 ];
 
 const Movies = () => {
+  const { data: films = [], isLoading, error } = useFilms();
   const [selectedFilm, setSelectedFilm] = useState<Film | null>(null);
   const [selectedCategory, setSelectedCategory] = useState("all");
 
@@ -30,14 +33,30 @@ const Movies = () => {
     setSelectedFilm(null);
   };
 
-  const filteredFilms = selectedCategory === "all" 
-    ? dummyFilms 
-    : dummyFilms.filter(film => film.category.toLowerCase() === selectedCategory);
+  const filteredFilms = selectedCategory === "all"
+    ? films
+    : films.filter(film => film.category.toLowerCase() === selectedCategory);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-foreground"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-foreground">Error loading films. Please try again later.</div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      
+
       {/* Hero Header */}
       <section className="pt-32 pb-12">
         <div className="container mx-auto px-6 lg:px-12">
@@ -59,11 +78,10 @@ const Movies = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => setSelectedCategory(category.id)}
-                className={`border-foreground/20 ${
-                  selectedCategory === category.id 
-                    ? "bg-foreground text-background hover:bg-foreground/90" 
-                    : "hover:bg-foreground/10"
-                }`}
+                className={`border-foreground/20 ${selectedCategory === category.id
+                  ? "bg-foreground text-background hover:bg-foreground/90"
+                  : "hover:bg-foreground/10"
+                  }`}
               >
                 {category.label}
               </Button>
@@ -79,8 +97,8 @@ const Movies = () => {
 
       {/* Film Detail Overlay */}
       {selectedFilm && (
-        <FilmDetailOverlay 
-          film={selectedFilm} 
+        <FilmDetailOverlay
+          film={selectedFilm}
           onClose={closeOverlay}
           onSelectFilm={setSelectedFilm}
         />

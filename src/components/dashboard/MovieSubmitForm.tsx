@@ -41,7 +41,7 @@ interface MovieSubmitFormProps {
 const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCancel }: MovieSubmitFormProps) => {
   const [loading, setLoading] = useState(false);
   const [activeSection, setActiveSection] = useState<'basic' | 'details' | 'credits'>('basic');
-  
+
   // Basic Info
   const [title, setTitle] = useState(initialData?.title || "");
   const [description, setDescription] = useState(initialData?.description || "");
@@ -51,7 +51,7 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
   const [customCategory, setCustomCategory] = useState("");
   const [genre, setGenre] = useState(initialData?.genre || "");
   const [customGenre, setCustomGenre] = useState("");
-  
+
   // Extended Details
   const [year, setYear] = useState(initialData?.year?.toString() || new Date().getFullYear().toString());
   const [duration, setDuration] = useState(initialData?.duration || "");
@@ -59,14 +59,19 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
   const [language, setLanguage] = useState(initialData?.language || "");
   const [selectedCharacteristics, setSelectedCharacteristics] = useState<string[]>(initialData?.characteristics || []);
   const [youtubeVideoId, setYoutubeVideoId] = useState(initialData?.youtube_video_id || "");
-  
+
   // Credits
   const [director, setDirector] = useState(initialData?.director || "");
   const [directorBio, setDirectorBio] = useState(initialData?.director_bio || "");
-  const [cinematographer, setCinematographer] = useState(initialData?.cinematographer || "");
+  const [cinematographer, setCinematographer] = useState<string[]>(
+    Array.isArray(initialData?.cinematographer)
+      ? initialData.cinematographer
+      : (initialData?.cinematographer ? [initialData.cinematographer] : [])
+  );
+  const [newCinematographer, setNewCinematographer] = useState("");
   const [cast, setCast] = useState<string[]>(initialData?.cast_members || []);
   const [newCastMember, setNewCastMember] = useState("");
-  
+
   // Awards
   const [awards, setAwards] = useState<string[]>(initialData?.awards || []);
   const [newAward, setNewAward] = useState("");
@@ -98,6 +103,17 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
     setSelectedCharacteristics(prev =>
       prev.includes(char) ? prev.filter(c => c !== char) : [...prev, char]
     );
+  };
+
+  const addCinematographer = () => {
+    if (newCinematographer.trim() && !cinematographer.includes(newCinematographer.trim())) {
+      setCinematographer([...cinematographer, newCinematographer.trim()]);
+      setNewCinematographer("");
+    }
+  };
+
+  const removeCinematographer = (member: string) => {
+    setCinematographer(cinematographer.filter(c => c !== member));
   };
 
   const addCastMember = () => {
@@ -165,10 +181,10 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
         language: language || null,
         director: director || null,
         director_bio: directorBio || null,
-        cinematographer: cinematographer || null,
-        cast_members: cast.length ? cast : null,
-        awards: awards.length ? awards : null,
-        characteristics: selectedCharacteristics.length ? selectedCharacteristics : null,
+        cinematographer: cinematographer && cinematographer.length > 0 ? cinematographer : undefined,
+        cast_members: cast && cast.length > 0 ? cast : undefined,
+        awards: awards && awards.length > 0 ? awards : undefined,
+        characteristics: selectedCharacteristics && selectedCharacteristics.length > 0 ? selectedCharacteristics : undefined,
       };
 
       if (!initialData) {
@@ -181,7 +197,7 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
       }
 
       let error;
-      
+
       if (initialData) {
         const result = await supabase
           .from('movies')
@@ -199,16 +215,16 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
         setLoading(false);
         return;
       }
-      
+
       toast.success(
-        initialData 
-          ? "Film updated successfully!" 
+        initialData
+          ? "Film updated successfully!"
           : (isAdmin ? "Film added successfully!" : "Film submitted! Awaiting admin approval.")
       );
-      
+
       setLoading(false);
       onSuccess();
-      
+
     } catch (error) {
       console.error('Submission error:', error);
       toast.error("An error occurred. Please try again.");
@@ -235,11 +251,10 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
             key={id}
             type="button"
             onClick={() => setActiveSection(id as any)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-              activeSection === id
-                ? 'bg-foreground text-background'
-                : 'text-foreground/60 hover:text-foreground hover:bg-muted'
-            }`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${activeSection === id
+              ? 'bg-foreground text-background'
+              : 'text-foreground/60 hover:text-foreground hover:bg-muted'
+              }`}
           >
             <Icon className="h-4 w-4" />
             <span className="text-sm">{label}</span>
@@ -264,11 +279,11 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
                 Title
                 <span className="text-destructive text-xs font-semibold">*</span>
               </Label>
-              <Input 
-                id="title" 
+              <Input
+                id="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                required 
+                required
                 disabled={loading}
                 className="bg-card border-border"
                 placeholder="Enter film title..."
@@ -278,11 +293,11 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
             {/* Description */}
             <div className="space-y-2">
               <Label htmlFor="description" className="text-foreground/70">Description</Label>
-              <Textarea 
-                id="description" 
+              <Textarea
+                id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                rows={4} 
+                rows={4}
                 disabled={loading}
                 className="bg-card border-border resize-none"
                 placeholder="Tell us about your film..."
@@ -298,12 +313,12 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
                   <span className="text-destructive text-xs font-semibold">*</span>
                 </span>
               </Label>
-              <Input 
-                id="youtube_url" 
+              <Input
+                id="youtube_url"
                 value={youtubeUrl}
                 onChange={(e) => setYoutubeUrl(e.target.value)}
-                type="url" 
-                required 
+                type="url"
+                required
                 disabled={loading}
                 className="bg-card border-border"
                 placeholder="https://www.youtube.com/watch?v=..."
@@ -371,8 +386,8 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
             {isAdmin && initialData && (
               <div className="space-y-2">
                 <Label className="text-foreground/70">Status</Label>
-                <Select 
-                  value={initialData.status} 
+                <Select
+                  value={initialData.status}
                   onValueChange={(value) => initialData.status = value}
                   disabled={loading}
                 >
@@ -403,7 +418,7 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
               {/* Year */}
               <div className="space-y-2">
                 <Label className="text-foreground/70">Release Year</Label>
-                <Input 
+                <Input
                   type="number"
                   value={year}
                   onChange={(e) => setYear(e.target.value)}
@@ -417,7 +432,7 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
               {/* Duration */}
               <div className="space-y-2">
                 <Label className="text-foreground/70">Duration</Label>
-                <Input 
+                <Input
                   value={duration}
                   onChange={(e) => setDuration(e.target.value)}
                   placeholder="e.g., 1h 45min"
@@ -432,7 +447,7 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
                   <Globe className="h-4 w-4" />
                   Country
                 </Label>
-                <Input 
+                <Input
                   value={country}
                   onChange={(e) => setCountry(e.target.value)}
                   placeholder="e.g., United States"
@@ -447,7 +462,7 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
                   <Languages className="h-4 w-4" />
                   Language
                 </Label>
-                <Input 
+                <Input
                   value={language}
                   onChange={(e) => setLanguage(e.target.value)}
                   placeholder="e.g., English, French"
@@ -468,11 +483,10 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
                     type="button"
                     onClick={() => toggleCharacteristic(char)}
                     disabled={loading || (selectedCharacteristics.length >= 6 && !selectedCharacteristics.includes(char))}
-                    className={`px-3 py-1.5 text-xs rounded-full border transition-colors ${
-                      selectedCharacteristics.includes(char)
-                        ? 'bg-foreground text-background border-foreground'
-                        : 'border-border text-foreground/60 hover:border-foreground/50'
-                    } ${loading || (selectedCharacteristics.length >= 6 && !selectedCharacteristics.includes(char)) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`px-3 py-1.5 text-xs rounded-full border transition-colors ${selectedCharacteristics.includes(char)
+                      ? 'bg-foreground text-background border-foreground'
+                      : 'border-border text-foreground/60 hover:border-foreground/50'
+                      } ${loading || (selectedCharacteristics.length >= 6 && !selectedCharacteristics.includes(char)) ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     {char}
                   </button>
@@ -500,7 +514,7 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
                   <span className="text-destructive text-xs font-semibold">*</span>
                 </span>
               </Label>
-              <Input 
+              <Input
                 value={director}
                 onChange={(e) => setDirector(e.target.value)}
                 placeholder="Director name..."
@@ -513,7 +527,7 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
             {/* Director Bio */}
             <div className="space-y-2">
               <Label className="text-foreground/70">Director Bio</Label>
-              <Textarea 
+              <Textarea
                 value={directorBio}
                 onChange={(e) => setDirectorBio(e.target.value)}
                 rows={3}
@@ -523,26 +537,46 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
               />
             </div>
 
-            {/* Cinematographer */}
-            <div className="space-y-2">
+            <div className="space-y-3">
               <Label className="flex items-center gap-2 text-foreground/70">
                 <Camera className="h-4 w-4" />
                 Cinematographer
               </Label>
-              <Input 
-                value={cinematographer}
-                onChange={(e) => setCinematographer(e.target.value)}
-                placeholder="Cinematographer name..."
-                disabled={loading}
-                className="bg-card border-border"
-              />
+              <div className="flex gap-2">
+                <Input
+                  value={newCinematographer}
+                  onChange={(e) => setNewCinematographer(e.target.value)}
+                  placeholder="Add cinematographer..."
+                  disabled={loading}
+                  className="bg-card border-border"
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCinematographer())}
+                />
+                <Button type="button" variant="outline" onClick={addCinematographer} disabled={loading}>
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              {cinematographer.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {cinematographer.map((member) => (
+                    <span
+                      key={member}
+                      className="flex items-center gap-1 px-3 py-1 bg-muted rounded-full text-sm"
+                    >
+                      {member}
+                      <button type="button" onClick={() => removeCinematographer(member)} className="hover:text-destructive">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Cast */}
             <div className="space-y-3">
               <Label className="text-foreground/70">Cast Members</Label>
               <div className="flex gap-2">
-                <Input 
+                <Input
                   value={newCastMember}
                   onChange={(e) => setNewCastMember(e.target.value)}
                   placeholder="Add cast member..."
@@ -581,7 +615,7 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
                 Add award names to auto-fetch details from Wikipedia (optional).
               </p>
               <div className="flex gap-2">
-                <Input 
+                <Input
                   value={newAward}
                   onChange={(e) => setNewAward(e.target.value)}
                   placeholder="e.g., Sundance Film Festival"
@@ -616,10 +650,10 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
 
       {/* Action Buttons */}
       <div className="flex items-center justify-between gap-3 pt-4 border-t border-border">
-        <Button 
-          type="button" 
-          variant="outline" 
-          onClick={onCancel} 
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
           disabled={loading}
         >
           Cancel
@@ -657,8 +691,8 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
               Next
             </Button>
           ) : (
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={loading || !youtubeUrl || !title}
               className="bg-foreground text-background hover:bg-foreground/90"
             >

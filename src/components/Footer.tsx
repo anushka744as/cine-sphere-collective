@@ -14,8 +14,8 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           {/* Brand */}
           <div className="md:col-span-1">
-            <div 
-              className="text-xl font-bold tracking-tight cursor-pointer mb-4" 
+            <div
+              className="text-xl font-bold tracking-tight cursor-pointer mb-4"
               onClick={() => handleNavigation('/')}
             >
               CINESPHERE
@@ -30,24 +30,24 @@ const Footer = () => {
             <h3 className="text-xs uppercase tracking-wider text-foreground/50 mb-6">Explore</h3>
             <ul className="space-y-4 text-sm">
               <li>
-                <button 
-                  onClick={() => handleNavigation('/')} 
+                <button
+                  onClick={() => handleNavigation('/')}
                   className="text-foreground/70 hover:text-foreground transition-colors"
                 >
                   Home
                 </button>
               </li>
               <li>
-                <button 
-                  onClick={() => handleNavigation('/featured')} 
+                <button
+                  onClick={() => handleNavigation('/featured')}
                   className="text-foreground/70 hover:text-foreground transition-colors"
                 >
                   Featured
                 </button>
               </li>
               <li>
-                <button 
-                  onClick={() => handleNavigation('/movies')} 
+                <button
+                  onClick={() => handleNavigation('/movies')}
                   className="text-foreground/70 hover:text-foreground transition-colors"
                 >
                   All Films
@@ -61,24 +61,24 @@ const Footer = () => {
             <h3 className="text-xs uppercase tracking-wider text-foreground/50 mb-6">Community</h3>
             <ul className="space-y-4 text-sm">
               <li>
-                <button 
-                  onClick={() => handleNavigation('/dashboard')} 
+                <button
+                  onClick={() => handleNavigation('/dashboard')}
                   className="text-foreground/70 hover:text-foreground transition-colors"
                 >
                   Submit Film
                 </button>
               </li>
               <li>
-                <button 
-                  onClick={() => handleNavigation('/about')} 
+                <button
+                  onClick={() => handleNavigation('/about')}
                   className="text-foreground/70 hover:text-foreground transition-colors"
                 >
                   About
                 </button>
               </li>
               <li>
-                <button 
-                  onClick={() => handleNavigation('/auth')} 
+                <button
+                  onClick={() => handleNavigation('/auth')}
                   className="text-foreground/70 hover:text-foreground transition-colors"
                 >
                   Sign In
@@ -92,10 +92,20 @@ const Footer = () => {
             <h3 className="text-xs uppercase tracking-wider text-foreground/50 mb-6">Legal</h3>
             <ul className="space-y-4 text-sm">
               <li>
-                <span className="text-foreground/70">Privacy Policy</span>
+                <button
+                  onClick={() => handleNavigation('/privacy')}
+                  className="text-foreground/70 hover:text-foreground transition-colors"
+                >
+                  Privacy Policy
+                </button>
               </li>
               <li>
-                <span className="text-foreground/70">Terms of Service</span>
+                <button
+                  onClick={() => handleNavigation('/terms')}
+                  className="text-foreground/70 hover:text-foreground transition-colors"
+                >
+                  Terms of Service
+                </button>
               </li>
             </ul>
           </div>
