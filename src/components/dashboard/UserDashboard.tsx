@@ -226,7 +226,8 @@ const UserDashboard = () => {
                       size="sm"
                       onClick={() => handleEdit(movie)}
                       className="flex-1 sm:flex-none"
-                      disabled={loading}
+                      disabled={loading || movie.status === 'approved'}
+                      title={movie.status === 'approved' ? 'Cannot edit approved films' : 'Edit'}
                     >
                       <Edit className="h-4 w-4 sm:mr-2" />
                       <span className="hidden sm:inline">Edit</span>
@@ -236,7 +237,8 @@ const UserDashboard = () => {
                       size="sm"
                       onClick={() => handleDelete(movie.id, movie.title)}
                       className="flex-1 sm:flex-none text-destructive hover:text-destructive"
-                      disabled={loading}
+                      disabled={loading || movie.status === 'approved'}
+                      title={movie.status === 'approved' ? 'Cannot delete approved films' : 'Delete'}
                     >
                       <Trash2 className="h-4 w-4 sm:mr-2" />
                       <span className="hidden sm:inline">Delete</span>
