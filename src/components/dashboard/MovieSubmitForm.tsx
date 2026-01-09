@@ -167,7 +167,7 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
       const parsedYear = year ? parseInt(year, 10) : null;
       const normalizedYear = Number.isNaN(parsedYear) ? null : parsedYear;
 
-      const movieData: any = {
+      const movieData: Record<string, unknown> = {
         title: title.trim(),
         description: description.trim(),
         youtube_url: youtubeUrl.trim(),
@@ -181,10 +181,11 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
         language: language || null,
         director: director || null,
         director_bio: directorBio || null,
-        cinematographer: cinematographer && cinematographer.length > 0 ? cinematographer : undefined,
-        cast_members: cast && cast.length > 0 ? cast : undefined,
-        awards: awards && awards.length > 0 ? awards : undefined,
-        characteristics: selectedCharacteristics && selectedCharacteristics.length > 0 ? selectedCharacteristics : undefined,
+        // cinematographer is stored as text in DB, join array to string
+        cinematographer: cinematographer && cinematographer.length > 0 ? cinematographer.join(', ') : null,
+        cast_members: cast && cast.length > 0 ? cast : null,
+        awards: awards && awards.length > 0 ? awards : null,
+        characteristics: selectedCharacteristics && selectedCharacteristics.length > 0 ? selectedCharacteristics : null,
       };
 
       if (!initialData) {
@@ -199,13 +200,14 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
       let error;
 
       if (initialData) {
-        const result = await supabase
+        // Use type assertion since some columns may not be in generated types
+        const result = await (supabase as any)
           .from('movies')
           .update(movieData)
           .eq('id', initialData.id);
         error = result.error;
       } else {
-        const result = await supabase.from('movies').insert(movieData);
+        const result = await (supabase as any).from('movies').insert(movieData);
         error = result.error;
       }
 

@@ -155,7 +155,8 @@ const AdminDashboard = () => {
 
   const handleToggleFeatured = async (id: string, currentStatus: boolean) => {
     setLoading(true);
-    const { error } = await supabase
+    // Use type assertion since is_featured may not be in generated types
+    const { error } = await (supabase as any)
       .from('movies')
       .update({ is_featured: !currentStatus })
       .eq('id', id);
@@ -181,7 +182,8 @@ const AdminDashboard = () => {
     }
 
     setLoading(true);
-    const { error } = await supabase
+    // Use type assertion since role column may not be in generated types
+    const { error } = await (supabase as any)
       .from('profiles')
       .update({ role: newRole })
       .eq('id', targetUser.id);

@@ -30,6 +30,15 @@ const persistLocalWatchlist = (list: Film[]) => {
   window.localStorage.setItem("watchlist", JSON.stringify(list));
 };
 
+// Watchlist entry from DB
+interface WatchlistEntry {
+  id: string;
+  user_id: string;
+  film_id: string;
+  film_snapshot: Record<string, unknown> | null;
+  created_at: string;
+}
+
 export const WatchlistProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
   const [watchlist, setWatchlist] = useState<Film[]>(getSavedWatchlist);
@@ -40,7 +49,8 @@ export const WatchlistProvider = ({ children }: { children: ReactNode }) => {
       setWatchlist([]);
       setEntryIds({});
       const fetchWatchlist = async () => {
-        const { data, error } = await supabase
+        // Use type assertion since watchlists table may not be in generated types
+        const { data, error } = await (supabase as any)
           .from("watchlists")
           .select("id, film_id, film_snapshot")
           .eq("user_id", user.id)
@@ -51,13 +61,35 @@ export const WatchlistProvider = ({ children }: { children: ReactNode }) => {
           return;
         }
 
+        const entries = data as WatchlistEntry[] | null;
         const nextEntryIds: Record<string, string> = {};
         const nextWatchlist: Film[] = [];
 
-        data?.forEach((entry) => {
+        entries?.forEach((entry) => {
           let film: Film | null = null;
-          if (entry.film_snapshot) {
-            film = entry.film_snapshot as Film;
+          if (entry.film_snapshot && typeof entry.film_snapshot === 'object') {
+            const snapshot = entry.film_snapshot;
+            film = {
+              id: String(snapshot.id || entry.film_id),
+              title: String(snapshot.title || ''),
+              director: String(snapshot.director || ''),
+              directorBio: String(snapshot.directorBio || ''),
+              year: Number(snapshot.year) || 0,
+              duration: String(snapshot.duration || ''),
+              category: String(snapshot.category || ''),
+              description: String(snapshot.description || ''),
+              thumbnail: String(snapshot.thumbnail || ''),
+              videoUrl: String(snapshot.videoUrl || ''),
+              characteristics: Array.isArray(snapshot.characteristics) ? snapshot.characteristics as string[] : [],
+              awards: Array.isArray(snapshot.awards) ? snapshot.awards as string[] : [],
+              cast: Array.isArray(snapshot.cast) ? snapshot.cast as string[] : [],
+              cinematographer: Array.isArray(snapshot.cinematographer) 
+                ? snapshot.cinematographer as string[] 
+                : (snapshot.cinematographer ? [String(snapshot.cinematographer)] : []),
+              country: String(snapshot.country || ''),
+              language: String(snapshot.language || ''),
+              directorImage: snapshot.directorImage ? String(snapshot.directorImage) : undefined,
+            };
           } else {
             film = dummyFilms.find((item) => item.id === entry.film_id) ?? null;
           }
@@ -90,7 +122,7 @@ export const WatchlistProvider = ({ children }: { children: ReactNode }) => {
     });
 
     if (user) {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("watchlists")
         .insert({
           user_id: user.id,
@@ -120,7 +152,7 @@ export const WatchlistProvider = ({ children }: { children: ReactNode }) => {
     });
 
     if (user && entryIds[filmId]) {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("watchlists")
         .delete()
         .eq("id", entryIds[filmId]);
@@ -140,7 +172,7 @@ export const WatchlistProvider = ({ children }: { children: ReactNode }) => {
     setEntryIds({});
 
     if (user) {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("watchlists")
         .delete()
         .eq("user_id", user.id);
