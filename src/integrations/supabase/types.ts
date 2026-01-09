@@ -16,12 +16,21 @@ export type Database = {
     Tables: {
       movies: {
         Row: {
+          awards: string[] | null
+          cast_members: string[] | null
           category: string
+          characteristics: string[] | null
+          cinematographer: string | null
+          country: string | null
           created_at: string | null
           description: string | null
+          director: string | null
+          director_bio: string | null
           duration: string | null
           genre: string | null
           id: string
+          is_featured: boolean | null
+          language: string | null
           status: string | null
           tags: string[] | null
           thumbnail_url: string | null
@@ -29,15 +38,27 @@ export type Database = {
           updated_at: string | null
           uploaded_by: string | null
           views: number | null
+          year: number | null
           youtube_url: string
+          youtube_video_id: string | null
+          youtube_views: number | null
         }
         Insert: {
+          awards?: string[] | null
+          cast_members?: string[] | null
           category: string
+          characteristics?: string[] | null
+          cinematographer?: string | null
+          country?: string | null
           created_at?: string | null
           description?: string | null
+          director?: string | null
+          director_bio?: string | null
           duration?: string | null
           genre?: string | null
           id?: string
+          is_featured?: boolean | null
+          language?: string | null
           status?: string | null
           tags?: string[] | null
           thumbnail_url?: string | null
@@ -45,15 +66,27 @@ export type Database = {
           updated_at?: string | null
           uploaded_by?: string | null
           views?: number | null
+          year?: number | null
           youtube_url: string
+          youtube_video_id?: string | null
+          youtube_views?: number | null
         }
         Update: {
+          awards?: string[] | null
+          cast_members?: string[] | null
           category?: string
+          characteristics?: string[] | null
+          cinematographer?: string | null
+          country?: string | null
           created_at?: string | null
           description?: string | null
+          director?: string | null
+          director_bio?: string | null
           duration?: string | null
           genre?: string | null
           id?: string
+          is_featured?: boolean | null
+          language?: string | null
           status?: string | null
           tags?: string[] | null
           thumbnail_url?: string | null
@@ -61,7 +94,10 @@ export type Database = {
           updated_at?: string | null
           uploaded_by?: string | null
           views?: number | null
+          year?: number | null
           youtube_url?: string
+          youtube_video_id?: string | null
+          youtube_views?: number | null
         }
         Relationships: []
       }
@@ -112,6 +148,38 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      watchlists: {
+        Row: {
+          created_at: string | null
+          film_id: string
+          film_snapshot: Json | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          film_id: string
+          film_snapshot?: Json | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          film_id?: string
+          film_snapshot?: Json | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "watchlists_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
