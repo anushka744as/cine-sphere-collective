@@ -6,10 +6,12 @@ import Footer from "@/components/Footer";
 import FilmDetailOverlay from "@/components/FilmDetailOverlay";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { Film } from "@/data/dummyFilms";
+import { useFilms } from "@/hooks/useFilms";
 import { Button } from "@/components/ui/button";
 
 const Watchlist = () => {
   const { watchlist, removeFromWatchlist, clearWatchlist } = useWatchlist();
+  const { data: films = [] } = useFilms();
   const [selectedFilm, setSelectedFilm] = useState<Film | null>(null);
 
   return (
@@ -115,6 +117,7 @@ const Watchlist = () => {
           film={selectedFilm}
           onClose={() => setSelectedFilm(null)}
           onSelectFilm={setSelectedFilm}
+          availableFilms={films}
         />
       )}
     </motion.div>

@@ -61,6 +61,7 @@ const Browse = () => {
           film={selectedFilm}
           onClose={closeOverlay}
           onSelectFilm={setSelectedFilm}
+          availableFilms={films}
         />
       )}
     </div>

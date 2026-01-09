@@ -113,7 +113,7 @@ const Footer = () => {
 
         <div className="mt-16 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-foreground/40">
-            © 2025 CineSphere. All rights reserved.
+            © 2026 CineSphere. All rights reserved.
           </p>
           <p className="text-sm text-foreground/40">
             Made for filmmakers worldwide

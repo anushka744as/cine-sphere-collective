@@ -88,6 +88,7 @@ const Featured = () => {
           film={selectedFilm}
           onClose={closeOverlay}
           onSelectFilm={setSelectedFilm}
+          availableFilms={films}
         />
       )}
     </div>

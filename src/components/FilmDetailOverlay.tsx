@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { X, Play, ArrowLeft, Bookmark, BookmarkCheck } from "lucide-react";
 import { motion } from "framer-motion";
-import { Film, dummyFilms } from "@/data/dummyFilms";
+import { Film } from "@/data/dummyFilms";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { AwardCard } from "@/components/AwardCard";
@@ -10,15 +10,18 @@ interface FilmDetailOverlayProps {
   film: Film;
   onClose: () => void;
   onSelectFilm?: (film: Film) => void;
+  availableFilms: Film[];
 }
 
-const FilmDetailOverlay = ({ film, onClose, onSelectFilm }: FilmDetailOverlayProps) => {
+const FilmDetailOverlay = ({ film, onClose, onSelectFilm, availableFilms }: FilmDetailOverlayProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const { addToWatchlist, removeFromWatchlist, isInWatchlist } = useWatchlist();
   const inWatchlist = isInWatchlist(film.id);
 
-  // Get related films (excluding current film)
-  const relatedFilms = dummyFilms.filter(f => f.id !== film.id).slice(0, 8);
+  // Get related films from the provided list (excluding current film)
+  const relatedFilms = availableFilms
+    .filter((f) => f.id !== film.id)
+    .slice(0, 8);
 
   const handleSelectRelatedFilm = (selectedFilm: Film) => {
     setIsPlaying(false);
@@ -263,15 +266,13 @@ const FilmDetailOverlay = ({ film, onClose, onSelectFilm }: FilmDetailOverlayPro
                   </div>
 
                   {/* Additional Info */}
-                  <div className="mb-10 max-w-3xl">
-                    <p className="text-foreground/60 leading-relaxed">
-                      This film resonates because it reflects life as it is: honest, emotional, and deeply human.
-                      Leaning on the beauty of natural light and a naturalistic shooting style, audiences are
-                      transported to the story's emotional core. The director's vision creates an immersive
-                      experience that lingers long after the credits roll, inviting viewers to reflect on their
-                      own experiences and connections.
-                    </p>
-                  </div>
+                  {film.description && (
+                    <div className="mb-10 max-w-3xl">
+                      <p className="text-foreground/60 leading-relaxed">
+                        {film.description}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </ScrollArea>

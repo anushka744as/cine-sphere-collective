@@ -107,6 +107,7 @@ export type Database = {
           bio: string | null
           created_at: string | null
           id: string
+          role: Database["public"]["Enums"]["app_role"]
           updated_at: string | null
           username: string | null
         }
@@ -115,6 +116,7 @@ export type Database = {
           bio?: string | null
           created_at?: string | null
           id: string
+          role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string | null
           username?: string | null
         }
@@ -123,6 +125,7 @@ export type Database = {
           bio?: string | null
           created_at?: string | null
           id?: string
+          role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string | null
           username?: string | null
         }

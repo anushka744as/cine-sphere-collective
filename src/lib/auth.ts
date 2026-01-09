@@ -34,22 +34,22 @@ export const getCurrentUser = async () => {
 };
 
 export const getUserRole = async (userId: string) => {
-  // Preferred: use backend function to avoid client-side role assumptions
-  // Returns true if the user has the 'admin' role.
   try {
-    const { data: isAdmin, error } = await supabase.rpc("has_role", {
-      _user_id: userId,
-      _role: "admin",
-    });
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", userId)
+      .maybeSingle();
 
     if (error) {
-      console.error("Auth: role check failed:", error);
+      console.error("Auth: failed to load profile role:", error);
       return { role: "user", error };
     }
 
-    return { role: isAdmin ? "admin" : "user", error: null };
+    const role = data?.role === "admin" ? "admin" : "user";
+    return { role, error: null };
   } catch (err) {
-    console.error("Auth: role check unexpected error:", err);
+    console.error("Auth: role lookup unexpected error:", err);
     return { role: "user", error: err };
   }
 };

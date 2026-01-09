@@ -39,9 +39,23 @@ const Index = () => {
   }, []);
 
   // Split films into sections
-  const featuredFilms = films.slice(0, 6);
-  const newReleases = films.slice(3, 9);
-  const curatedPicks = films.slice(6, 12);
+  const featuredCandidates = films.filter((film) => film.isFeatured);
+  const featuredFilms = featuredCandidates.length > 0 ? featuredCandidates.slice(0, 6) : films.slice(0, 6);
+  const adminOnlyFilms = films.filter((film) => film.uploaderRole === "admin");
+  const curatedPicks = adminOnlyFilms.length > 0 ? adminOnlyFilms : films.slice(6, 12);
+  const releaseCutoff = Date.now() - 24 * 60 * 60 * 1000;
+  const computedNewReleases = [...films]
+    .filter((film) => {
+      if (!film.createdAt) return false;
+      const createdTime = new Date(film.createdAt).getTime();
+      return !Number.isNaN(createdTime) && createdTime >= releaseCutoff;
+    })
+    .sort((a, b) => {
+      const aTime = new Date(a.createdAt!).getTime();
+      const bTime = new Date(b.createdAt!).getTime();
+      return bTime - aTime;
+    });
+  const newReleases = computedNewReleases.length > 0 ? computedNewReleases : films.slice(3, 9);
 
   if (isLoading) {
     return (
@@ -186,6 +200,7 @@ const Index = () => {
           film={selectedFilm}
           onClose={closeOverlay}
           onSelectFilm={setSelectedFilm}
+          availableFilms={films}
         />
       )}
     </motion.div>

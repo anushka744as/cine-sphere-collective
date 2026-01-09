@@ -28,6 +28,9 @@ interface ExtendedMovie {
   awards?: string[] | null;
   characteristics?: string[] | null;
   is_featured?: boolean | null;
+  profiles?: {
+    role?: string | null;
+  } | null;
 }
 
 export const useFilms = (showAllForAdmin = false) => {
@@ -36,7 +39,7 @@ export const useFilms = (showAllForAdmin = false) => {
     queryFn: async (): Promise<Film[]> => {
       let query = supabase
         .from("movies")
-        .select("*");
+        .select("*, profiles(role)");
       
       // Only show approved films on public pages
       if (!showAllForAdmin) {
@@ -74,6 +77,10 @@ export const useFilms = (showAllForAdmin = false) => {
         country: movie.country || "Unknown",
         language: movie.language || "Unknown",
         isFeatured: movie.is_featured || false,
+        createdAt: movie.created_at || undefined,
+        status: movie.status || undefined,
+        uploadedBy: movie.uploaded_by || undefined,
+        uploaderRole: movie.profiles?.role || undefined,
       }));
     },
   });

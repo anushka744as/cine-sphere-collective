@@ -14,7 +14,7 @@ const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
 
   if (user) {
-    navigate("/");
+    navigate("/dashboard");
     return null;
   }
 
@@ -66,7 +66,7 @@ const Auth = () => {
       setIsLoading(false);
     } else {
       toast.success("Welcome back!");
-      navigate("/");
+      navigate("/dashboard");
     }
   };
 

@@ -23,6 +23,19 @@ const PREDEFINED_GENRES = [
   "Romantic Drama", "Courtroom Drama", "Dark Comedy", "Fantasy Drama", "Other"
 ];
 
+const POPULAR_AWARDS = [
+  "Academy Awards (Oscars)",
+  "Cannes Film Festival Palme d'Or",
+  "BAFTA Awards",
+  "Sundance Film Festival Grand Jury Prize",
+  "Venice Film Festival Golden Lion",
+  "Berlin International Film Festival Golden Bear",
+  "Independent Spirit Awards Best Feature",
+  "Golden Globe Awards",
+  "SXSW Grand Jury Prize",
+  "Toronto International Film Festival People's Choice Award"
+];
+
 const CHARACTERISTICS = [
   "PSYCHOLOGICAL", "DRAMA", "INTIMATE", "PROVOCATIVE", "NOSTALGIC", "POETIC",
   "ROMANTIC", "MELANCHOLIC", "HAUNTING", "MASTERFUL", "ETHEREAL", "EMOTIONAL",
@@ -75,6 +88,11 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
   // Awards
   const [awards, setAwards] = useState<string[]>(initialData?.awards || []);
   const [newAward, setNewAward] = useState("");
+  const [popularAwardDropdownValue, setPopularAwardDropdownValue] = useState("");
+  const [showCustomAwardInput, setShowCustomAwardInput] = useState(false);
+  const [awardSuggestions, setAwardSuggestions] = useState<string[]>([]);
+  const [isFetchingAwardSuggestions, setIsFetchingAwardSuggestions] = useState(false);
+  const [awardSuggestionError, setAwardSuggestionError] = useState<string | null>(null);
 
   const extractYouTubeId = (url: string) => {
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
@@ -127,9 +145,24 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
     setCast(cast.filter(c => c !== member));
   };
 
-  const addAward = () => {
-    if (newAward.trim() && !awards.includes(newAward.trim())) {
-      setAwards([...awards, newAward.trim()]);
+  const addAward = (awardText?: string) => {
+    const value = (awardText ?? newAward).trim();
+    if (!value) {
+      if (!awardText) {
+        setNewAward("");
+      }
+      return;
+    }
+
+    if (awards.includes(value)) {
+      if (!awardText) {
+        setNewAward("");
+      }
+      return;
+    }
+
+    setAwards((prev) => [...prev, value]);
+    if (!awardText) {
       setNewAward("");
     }
   };
@@ -137,6 +170,83 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
   const removeAward = (award: string) => {
     setAwards(awards.filter(a => a !== award));
   };
+
+  const handlePopularAwardSelection = (value: string) => {
+    if (!value) {
+      setPopularAwardDropdownValue("");
+      return;
+    }
+
+    if (value === "other") {
+      setPopularAwardDropdownValue(value);
+      setShowCustomAwardInput(true);
+      setAwardSuggestionError(null);
+      return;
+    }
+
+    setPopularAwardDropdownValue("");
+    setShowCustomAwardInput(false);
+    addAward(value);
+  };
+
+  const handleSuggestionClick = (suggestion: string) => {
+    addAward(suggestion);
+    setNewAward("");
+    setAwardSuggestions([]);
+  };
+
+  const handleHideCustomAwardInput = () => {
+    setShowCustomAwardInput(false);
+    setNewAward("");
+    setAwardSuggestions([]);
+    setPopularAwardDropdownValue("");
+    setAwardSuggestionError(null);
+  };
+
+  useEffect(() => {
+    if (!showCustomAwardInput) {
+      setAwardSuggestions([]);
+      setIsFetchingAwardSuggestions(false);
+      setAwardSuggestionError(null);
+      return;
+    }
+
+    const query = newAward.trim();
+    if (query.length < 3) {
+      setAwardSuggestions([]);
+      setIsFetchingAwardSuggestions(false);
+      setAwardSuggestionError(null);
+      return;
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(async () => {
+      setIsFetchingAwardSuggestions(true);
+      setAwardSuggestionError(null);
+      try {
+        const response = await fetch(
+          `https://en.wikipedia.org/w/api.php?action=opensearch&format=json&origin=*&search=${encodeURIComponent(query)}&limit=6`,
+          { signal: controller.signal }
+        );
+        const data = await response.json();
+        const suggestions = Array.isArray(data) && Array.isArray(data[1]) ? data[1] : [];
+        setAwardSuggestions(suggestions);
+      } catch (error: any) {
+        if (error.name !== "AbortError") {
+          console.error("Failed to fetch award suggestions:", error);
+          setAwardSuggestionError("Unable to load Wikipedia suggestions.");
+          setAwardSuggestions([]);
+        }
+      } finally {
+        setIsFetchingAwardSuggestions(false);
+      }
+    }, 400);
+
+    return () => {
+      clearTimeout(timeoutId);
+      controller.abort();
+    };
+  }, [newAward, showCustomAwardInput]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -616,19 +726,91 @@ const MovieSubmitForm = ({ userId, isAdmin = false, initialData, onSuccess, onCa
               <p className="text-xs text-foreground/40">
                 Add award names to auto-fetch details from Wikipedia (optional).
               </p>
-              <div className="flex gap-2">
-                <Input
-                  value={newAward}
-                  onChange={(e) => setNewAward(e.target.value)}
-                  placeholder="e.g., Sundance Film Festival"
+              <div className="space-y-2">
+                <Select
+                  value={popularAwardDropdownValue}
+                  onValueChange={handlePopularAwardSelection}
                   disabled={loading}
-                  className="bg-card border-border"
-                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addAward())}
-                />
-                <Button type="button" variant="outline" onClick={addAward} disabled={loading}>
-                  <Plus className="h-4 w-4" />
-                </Button>
+                >
+                  <SelectTrigger className="bg-card border-border">
+                    <SelectValue placeholder="Select a popular award..." />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border-border">
+                    {POPULAR_AWARDS.map((award) => (
+                      <SelectItem key={award} value={award}>
+                        {award}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="other">
+                      Other (custom award)
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                {!showCustomAwardInput && (
+                  <p className="text-xs text-foreground/50">
+                    Select "Other" above to type a custom award and see Wikipedia suggestions.
+                  </p>
+                )}
               </div>
+
+              {showCustomAwardInput && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs text-foreground/50">
+                    <span>Type a custom award (3+ characters for suggestions).</span>
+                    <button
+                      type="button"
+                      onClick={handleHideCustomAwardInput}
+                      className="underline text-foreground/60 hover:text-foreground transition-colors"
+                    >
+                      Hide custom field
+                    </button>
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      value={newAward}
+                      onChange={(e) => setNewAward(e.target.value)}
+                      placeholder="e.g., Palme d'Or"
+                      disabled={loading}
+                      className="bg-card border-border"
+                      onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addAward())}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={addAward}
+                      disabled={loading || !newAward.trim()}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  {awardSuggestionError && (
+                    <p className="text-xs text-destructive">{awardSuggestionError}</p>
+                  )}
+                  {isFetchingAwardSuggestions && (
+                    <p className="text-xs text-foreground/50">Searching Wikipedia for awards...</p>
+                  )}
+                  {awardSuggestions.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-xs uppercase tracking-widest text-foreground/50">
+                        Wikipedia suggestions
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {awardSuggestions.map((suggestion) => (
+                          <button
+                            key={suggestion}
+                            type="button"
+                            onClick={() => handleSuggestionClick(suggestion)}
+                            className="px-3 py-1 text-xs rounded-full border border-foreground/20 hover:border-foreground transition-colors"
+                          >
+                            {suggestion}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {awards.length > 0 && (
                 <div className="space-y-3 mt-4">
                   {awards.map((award) => (

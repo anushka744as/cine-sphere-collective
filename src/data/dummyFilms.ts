@@ -19,6 +19,10 @@ export interface Film {
   country?: string;
   language?: string;
   isFeatured?: boolean;
+  createdAt?: string;
+  status?: string;
+  uploadedBy?: string;
+  uploaderRole?: string;
 }
 
 export const dummyFilms: Film[] = [
@@ -123,7 +127,7 @@ export const dummyFilms: Film[] = [
     director: "Goh Iromoto",
     directorBio: "Goh Iromoto is a Canadian-Japanese documentary filmmaker known for authentic, emotionally resonant storytelling. His work captures intimate human moments with an unobtrusive, naturalistic approach.",
     directorImage: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&h=200&fit=crop",
-    year: 2025,
+    year: 2026,
     duration: "45min",
     category: "Documentary",
     description: "Documentary-style shooting has experienced a significant surge in popularity. This ad style resonates because it reflects life as it is: honest, emotional, and deeply human.",
