@@ -34,31 +34,22 @@ export const getCurrentUser = async () => {
 };
 
 export const getUserRole = async (userId: string) => {
-  // First try to get role from user_roles table (preferred method)
-  const { data: roleData, error: roleError } = await supabase
-    .from('user_roles')
-    .select('role')
-    .eq('user_id', userId)
-    .maybeSingle();
-  
-  if (roleData?.role) {
-    console.log("Auth: Found role in user_roles table:", roleData.role);
-    return { role: roleData.role as string, error: null };
-  }
+  // Preferred: use backend function to avoid client-side role assumptions
+  // Returns true if the user has the 'admin' role.
+  try {
+    const { data: isAdmin, error } = await supabase.rpc("has_role", {
+      _user_id: userId,
+      _role: "admin",
+    });
 
-  // Fallback: check profiles table for role field (using type assertion since column may not be in types)
-  const { data: profileData, error: profileError } = await (supabase as any)
-    .from('profiles')
-    .select('role')
-    .eq('id', userId)
-    .maybeSingle();
-  
-  if (profileData?.role) {
-    console.log("Auth: Found role in profiles table:", profileData.role);
-    return { role: profileData.role as string, error: null };
-  }
+    if (error) {
+      console.error("Auth: role check failed:", error);
+      return { role: "user", error };
+    }
 
-  // Default to 'user' if no role found
-  console.log("Auth: No role found, defaulting to 'user'");
-  return { role: 'user', error: roleError || profileError };
+    return { role: isAdmin ? "admin" : "user", error: null };
+  } catch (err) {
+    console.error("Auth: role check unexpected error:", err);
+    return { role: "user", error: err };
+  }
 };
