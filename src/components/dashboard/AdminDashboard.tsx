@@ -61,16 +61,30 @@ const AdminDashboard = () => {
   };
 
   const fetchUsers = async () => {
-    const { data, error } = await supabase
+    const { data: profiles, error } = await supabase
       .from('profiles')
-      .select('id, username, created_at, role')
+      .select('id, username, created_at')
       .order('created_at', { ascending: false });
 
     if (error) {
       console.error("Failed to load users:", error);
-    } else {
-      setUsers(data || []);
+      return;
     }
+
+    // Fetch roles from user_roles and merge
+    const { data: roles } = await supabase
+      .from('user_roles')
+      .select('user_id, role');
+
+    const roleMap = new Map<string, string>();
+    (roles || []).forEach((r: any) => roleMap.set(r.user_id, r.role));
+
+    setUsers(
+      (profiles || []).map((p: any) => ({
+        ...p,
+        role: roleMap.get(p.id) || 'user',
+      }))
+    );
   };
 
   const getUserFilmCount = (userId: string) => {
@@ -182,19 +196,32 @@ const AdminDashboard = () => {
     }
 
     setLoading(true);
-    // Use type assertion since role column may not be in generated types
-    const { error } = await (supabase as any)
-      .from('profiles')
-      .update({ role: newRole })
-      .eq('id', targetUser.id);
 
-    if (error) {
+    // Store roles ONLY in user_roles table
+    const { error: deleteError } = await supabase
+      .from('user_roles')
+      .delete()
+      .eq('user_id', targetUser.id);
+
+    if (deleteError) {
       toast.error("Failed to update user role");
-      console.error(error);
+      console.error(deleteError);
+      setLoading(false);
+      return;
+    }
+
+    const { error: insertError } = await supabase
+      .from('user_roles')
+      .insert({ user_id: targetUser.id, role: newRole });
+
+    if (insertError) {
+      toast.error("Failed to update user role");
+      console.error(insertError);
     } else {
       toast.success(`User role updated to ${newRole}!`);
       await fetchUsers();
     }
+
     setLoading(false);
   };
 

@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { User, Session } from "@supabase/supabase-js";
+import { useEffect, useRef, useState } from "react";
+import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { getUserRole } from "@/lib/auth";
 
@@ -9,90 +9,64 @@ export function useAuth() {
   const [userRole, setUserRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const mountedRef = useRef(true);
+
   useEffect(() => {
-    let mounted = true;
+    mountedRef.current = true;
 
-    const fetchRole = async (userId: string) => {
-      console.log("Auth: Fetching role for", userId);
-      try {
-        const { role, error } = await getUserRole(userId);
-        if (!mounted) return;
-
-        if (error) {
-          console.error("Auth: Error fetching user role:", error);
-          setUserRole('user');
-        } else {
-          console.log("Auth: Role fetched successfully:", role);
-          setUserRole(role || 'user');
-        }
-      } catch (err) {
-        console.error("Auth: Unexpected error fetching role:", err);
-        if (mounted) setUserRole('user');
-      } finally {
-        if (mounted) {
-          setLoading(false);
-          console.log("Auth: Loading finished (authenticated)");
-        }
-      }
+    const applySession = (nextSession: Session | null) => {
+      if (!mountedRef.current) return;
+      setSession(nextSession);
+      setUser(nextSession?.user ?? null);
     };
 
-    // Initial session check
-    const checkInitialSession = async () => {
-      console.log("Auth: Checking initial session");
-      const { data: { session }, error } = await supabase.auth.getSession();
+    const fetchAndSetRole = (userId: string) => {
+      // Defer ALL backend calls to avoid auth state change deadlocks.
+      setTimeout(async () => {
+        if (!mountedRef.current) return;
+        try {
+          const { role } = await getUserRole(userId);
+          if (!mountedRef.current) return;
+          setUserRole(role || "user");
+        } catch {
+          if (!mountedRef.current) return;
+          setUserRole("user");
+        } finally {
+          if (mountedRef.current) setLoading(false);
+        }
+      }, 0);
+    };
 
-      if (!mounted) return;
+    // 1) Subscribe first
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, nextSession) => {
+      applySession(nextSession);
 
-      if (error) {
-        console.error("Auth: Session check error:", error);
-        setLoading(false);
-        return;
-      }
-
-      if (session?.user) {
-        setSession(session);
-        setUser(session.user);
-        await fetchRole(session.user.id);
+      if (nextSession?.user) {
+        setLoading(true);
+        fetchAndSetRole(nextSession.user.id);
       } else {
-        console.log("Auth: No initial session found");
+        setUserRole(null);
         setLoading(false);
       }
-    };
+    });
 
-    checkInitialSession();
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, currentSession) => {
-        console.log("Auth state changed:", event, currentSession?.user?.id);
-
-        if (!mounted) return;
-
-        setSession(currentSession);
-        setUser(currentSession?.user ?? null);
-
-        if (currentSession?.user) {
-          // If we already have a role and the user hasn't changed, don't set loading to true
-          // to avoid flickering or getting stuck.
-          if (!userRole) {
-            setLoading(true);
-          }
-          await fetchRole(currentSession.user.id);
-        } else {
-          setUserRole(null);
-          setLoading(false);
-          console.log("Auth: Loading finished (unauthenticated)");
-        }
+    // 2) Then read initial session
+    supabase.auth.getSession().then(({ data }) => {
+      applySession(data.session);
+      if (data.session?.user) {
+        fetchAndSetRole(data.session.user.id);
+      } else {
+        if (mountedRef.current) setLoading(false);
       }
-    );
+    });
 
     return () => {
-      mounted = false;
+      mountedRef.current = false;
       subscription.unsubscribe();
     };
-  }, []); // Only run once on mount
+  }, []);
 
-  const isAdmin = userRole === 'admin';
+  const isAdmin = userRole === "admin";
 
   return { user, session, userRole, isAdmin, loading };
 }
