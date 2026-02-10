@@ -1,6 +1,6 @@
-# 🎬 CineSphere Database Setup Guide
+# 🎬 Mushroom Studios Database Setup Guide
 
-This guide will help you set up the complete database schema for CineSphere.
+This guide will help you set up the complete database schema for Mushroom Studios.
 
 ## 📋 Prerequisites
 
@@ -240,4 +240,3 @@ If you encounter issues:
 ---
 
 **Happy filming! 🎥✨**
-

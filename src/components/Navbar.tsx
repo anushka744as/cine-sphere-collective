@@ -56,8 +56,19 @@ const Navbar = ({ onSearchToggle, isSearchOpen }: NavbarProps) => {
       <div className="container mx-auto px-6 py-6">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <a href="/" className="text-xl font-bold tracking-tight text-foreground z-50">
-            CINESPHERE
+          <a
+            href="/"
+            className="flex items-center gap-3 text-xl font-bold tracking-tight text-foreground z-50"
+          >
+            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white p-2 shadow-lg">
+              <img
+                src="/logo.png"
+                alt="Mushroom Studios"
+                className="h-full w-full rounded-full object-contain"
+                aria-hidden="true"
+              />
+            </span>
+            <span className="text-lg font-semibold tracking-tight">Mushroom Studios</span>
           </a>
 
           {/* Desktop Navigation Links */}

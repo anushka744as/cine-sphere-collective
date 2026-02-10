@@ -23,7 +23,7 @@ const PrivacyPolicy = () => {
                                 <div>
                                     <h2 className="text-2xl font-semibold mb-4 text-foreground">1. Introduction</h2>
                                     <p className="text-foreground/70 leading-relaxed">
-                                        Welcome to CineSphere ("we," "our," or "us"). We respect your privacy and are committed to protecting your personal data. This Privacy Policy will inform you as to how we look after your personal data when you visit our website (regardless of where you visit it from) and tell you about your privacy rights and how the law protects you.
+                                        Welcome to Mushroom Studios ("we," "our," or "us"). We respect your privacy and are committed to protecting your personal data. This Privacy Policy will inform you as to how we look after your personal data when you visit our website (regardless of where you visit it from) and tell you about your privacy rights and how the law protects you.
                                     </p>
                                 </div>
 
@@ -57,7 +57,7 @@ const PrivacyPolicy = () => {
                                 <div>
                                     <h2 className="text-2xl font-semibold mb-4 text-foreground">4. YouTube Data API</h2>
                                     <p className="text-foreground/70 leading-relaxed">
-                                        CineSphere uses YouTube API Services to display film content. By using our service, you are also bound by the YouTube Terms of Service and Google Privacy Policy. We do not store any private YouTube user data on our servers beyond what is necessary to display the public videos you submit.
+                                        Mushroom Studios uses YouTube API Services to display film content. By using our service, you are also bound by the YouTube Terms of Service and Google Privacy Policy. We do not store any private YouTube user data on our servers beyond what is necessary to display the public videos you submit.
                                     </p>
                                 </div>
 
@@ -79,7 +79,7 @@ const PrivacyPolicy = () => {
                                     <h2 className="text-2xl font-semibold mb-4 text-foreground">7. Contact Us</h2>
                                     <p className="text-foreground/70 leading-relaxed">
                                         If you have any questions about this Privacy Policy, please contact us at: <br />
-                                        <span className="text-foreground font-medium">privacy@cinesphere.com</span>
+                                        <span className="text-foreground font-medium">privacy@mushroomstudios.com</span>
                                     </p>
                                 </div>
                             </div>

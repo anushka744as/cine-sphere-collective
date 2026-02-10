@@ -136,4 +136,21 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /* Logo loader animation */
+  @keyframes logo-fade {
+    0%, 100% {
+      opacity: 0.35;
+      transform: scale(0.92);
+    }
+
+    50% {
+      opacity: 1;
+      transform: scale(1.03);
+    }
+  }
+
+  .logo-fade {
+    animation: logo-fade 1.6s ease-in-out infinite;
+  }
 }

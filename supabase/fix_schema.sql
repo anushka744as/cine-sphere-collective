@@ -1,5 +1,5 @@
 -- ============================================================================
--- CINESPHERE REPAIR SCRIPT
+-- Mushroom Studios REPAIR SCRIPT
 -- Run this in your Supabase SQL Editor to resolve all PGRST204/205 errors
 -- ============================================================================
 

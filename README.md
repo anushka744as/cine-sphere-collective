@@ -1,4 +1,4 @@
-# 🎬 CineSphere - Free Documentary Showcase Platform
+# 🎬 Mushroom Studios - Free Documentary Showcase Platform
 
 A modern, free platform for documentary creators to showcase their YouTube documentaries to a global audience.
 

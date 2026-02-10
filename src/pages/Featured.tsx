@@ -6,6 +6,7 @@ import FilmCarousel from "@/components/FilmCarousel";
 import FilmDetailOverlay from "@/components/FilmDetailOverlay";
 import { useFilms } from "@/hooks/useFilms";
 import { Film } from "@/data/dummyFilms";
+import Loader from "@/components/Loader";
 
 const Featured = () => {
   const { data: films = [], isLoading, error } = useFilms();
@@ -27,11 +28,7 @@ const Featured = () => {
   const displayStaffPicks = staffPicks.length > 0 ? staffPicks : films.slice(6, 12);
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-foreground"></div>
-      </div>
-    );
+    return <Loader message="Loading films..." />;
   }
 
   if (error) {

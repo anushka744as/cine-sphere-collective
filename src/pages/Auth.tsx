@@ -74,8 +74,13 @@ const Auth = () => {
     <div className="min-h-screen flex items-center justify-center bg-background px-6">
       <div className="w-full max-w-sm">
         <div className="text-center mb-12">
+          <img
+            src="/logo.png"
+            alt="Mushroom Studios"
+            className="mx-auto mb-4 h-12 w-12 rounded-full object-contain"
+          />
           <a href="/" className="text-xl font-bold tracking-tight">
-            CINESPHERE
+            Mushroom Studios
           </a>
         </div>
 

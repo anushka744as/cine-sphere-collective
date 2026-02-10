@@ -12,6 +12,7 @@ import { Film } from "@/data/dummyFilms";
 import { ArrowRight, Search, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import Loader from "@/components/Loader";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -58,11 +59,7 @@ const Index = () => {
   const newReleases = computedNewReleases.length > 0 ? computedNewReleases : films.slice(3, 9);
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-foreground"></div>
-      </div>
-    );
+    return <Loader message="Loading films..." />;
   }
 
   if (error) {
@@ -176,7 +173,7 @@ const Index = () => {
                 </p>
                 <h2 className="text-4xl md:text-5xl font-bold mb-6">Share Your Story</h2>
                 <p className="text-lg text-foreground/60 mb-10 leading-relaxed">
-                  Have a film on YouTube? Submit it to CineSphere and reach an audience
+                  Have a film on YouTube? Submit it to Mushroom Studios and reach an audience
                   passionate about cinema. It's completely free.
                 </p>
                 <button

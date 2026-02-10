@@ -23,7 +23,7 @@ const About = () => {
               Independent Cinema
             </h1>
             <p className="text-xl text-foreground/60 leading-relaxed">
-              CineSphere is a curated destination for film lovers and creators. 
+              Mushroom Studios is a curated destination for film lovers and creators. 
               We believe in the power of storytelling and the importance of 
               giving independent filmmakers a platform to share their work.
             </p>
@@ -45,7 +45,7 @@ const About = () => {
             </div>
             <div className="space-y-6 text-foreground/70 leading-relaxed">
               <p>
-                We started CineSphere with a simple idea: every filmmaker deserves 
+                We started Mushroom Studios with a simple idea: every filmmaker deserves 
                 an audience. Whether you're a seasoned director or just starting out, 
                 your stories matter.
               </p>

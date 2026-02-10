@@ -1,5 +1,5 @@
 -- ============================================================================
--- CINESPHERE DATABASE SCHEMA
+-- Mushroom Studios DATABASE SCHEMA
 -- Complete schema for film showcase platform
 -- ============================================================================
 

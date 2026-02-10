@@ -3,10 +3,10 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FilmGrid from "@/components/FilmGrid";
 import FilmDetailOverlay from "@/components/FilmDetailOverlay";
-import { useRef } from "react";
 import { useFilms } from "@/hooks/useFilms";
 import { Film } from "@/data/dummyFilms";
 import { Button } from "@/components/ui/button";
+import Loader from "@/components/Loader";
 
 const categories = [
   { id: "all", label: "All" },
@@ -38,11 +38,7 @@ const Movies = () => {
     : films.filter(film => film.category.toLowerCase() === selectedCategory);
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-foreground"></div>
-      </div>
-    );
+    return <Loader message="Loading films..." />;
   }
 
   if (error) {

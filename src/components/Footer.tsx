@@ -15,10 +15,21 @@ const Footer = () => {
           {/* Brand */}
           <div className="md:col-span-1">
             <div
-              className="text-xl font-bold tracking-tight cursor-pointer mb-4"
+              className="flex items-center gap-4 cursor-pointer mb-4"
               onClick={() => handleNavigation('/')}
             >
-              CINESPHERE
+              <span className="flex h-20 w-20 items-center justify-center rounded-full bg-white p-2 shadow-lg">
+                <img
+                  src="/logo.png"
+                  alt="Mushroom Studios"
+                  className="h-full w-full rounded-full object-contain"
+                  aria-hidden="true"
+                />
+              </span>
+              <div>
+                <div className="text-xl font-bold tracking-tight">Mushroom Studios</div>
+                <p className="text-xs uppercase tracking-wide text-foreground/50">Free film showcase</p>
+              </div>
             </div>
             <p className="text-sm text-foreground/50 leading-relaxed">
               Free platform for filmmakers to showcase their YouTube films.
@@ -113,7 +124,7 @@ const Footer = () => {
 
         <div className="mt-16 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-foreground/40">
-            © 2026 CineSphere. All rights reserved.
+            © 2026 Mushroom Studios. All rights reserved.
           </p>
           <p className="text-sm text-foreground/40">
             Made for filmmakers worldwide

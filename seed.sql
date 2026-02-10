@@ -1,4 +1,4 @@
--- Seed data for CineSphere Supabase project
+-- Seed data for Mushroom Studios Supabase project
 -- Insert a default admin user and sample films matching `dummyFilms.ts`
 
 -- Insert movies that mirror dummyFilms.ts
